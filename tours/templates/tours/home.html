@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<h1>Tyva Trail</h1>
+
+{% if not user.is_authenticated %}
+  <p>Чтобы подобрать маршрут, войдите в систему.</p>
+{% else %}
+  <h2>Подбор маршрута</h2>
+  <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Подобрать маршрут</button>
+  </form>
+{% endif %}
+{% endblock %}

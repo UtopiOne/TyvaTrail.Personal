@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Маршрут {{ route.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ route.name }}</h1>
+
+<p>
+  Дней: {{ route.days_count }}<br>
+  Общее время: {{ route.total_duration_hours }} ч<br>
+  Ориентировочная стоимость:
+  {% if route.total_cost %}
+    {{ route.total_cost }} ₽
+  {% else %}
+    —
+  {% endif %}
+</p>
+
+{% for day, points in days.items %}
+  <h2>День {{ day }}</h2>
+  <ol>
+    {% for p in points %}
+      <li>
+        <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч<br>
+        {{ p.poi.short_description }}<br>
+        {% if p.note %}
+          <em>Примечание: {{ p.note }}</em>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+{% empty %}
+  <p>В этом маршруте пока нет точек.</p>
+{% endfor %}
+{% endblock %}
