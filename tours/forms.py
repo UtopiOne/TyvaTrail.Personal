@@ -1,6 +1,7 @@
 from django import forms
 
 from .models import UserProfile
+from .models import PoiType, Season, PriceLevel, PhysicalLevel
 
 
 class UserProfileForm(forms.ModelForm):
@@ -29,3 +30,12 @@ class RouteRequestForm(forms.Form):
         required=False,
         min_value=0,
     )
+
+
+class PoiFilterForm(forms.Form):
+    q = forms.CharField(required=False, label="Поиск")
+    type = forms.ChoiceField(required=False, choices=[("", "Все")] + list(PoiType.choices), label="Тип")
+    region = forms.CharField(required=False, label="Регион / район")
+    season = forms.ChoiceField(required=False, choices=[("", "Все")] + list(Season.choices), label="Сезон")
+    price_level = forms.ChoiceField(required=False, choices=[("", "Все")] + list(PriceLevel.choices), label="Уровень цен")
+    physical_level = forms.ChoiceField(required=False, choices=[("", "Все")] + list(PhysicalLevel.choices), label="Сложность")

@@ -8,6 +8,7 @@
 <body>
 <nav>
     <a href="{% url 'home' %}">Главная</a>
+    | <a href="{% url 'poi_list' %}">Каталог</a>
     {% if user.is_authenticated %}
         | <a href="{% url 'profile' %}">Профиль</a>
         | <a href="{% url 'my_routes' %}">Мои маршруты</a>

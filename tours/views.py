@@ -11,6 +11,10 @@ from .forms import RouteRequestForm, UserProfileForm
 from .models import Route
 from .services.route_builder import build_route_for_user
 from .services.route_queries import get_user_routes, get_route_days
+from django.core.paginator import Paginator
+from .models import Poi, PoiPhoto, Review
+from .forms import PoiFilterForm
+
 
 
 def home(request):
@@ -32,6 +36,63 @@ def home(request):
         form = RouteRequestForm()
 
     return render(request, "tours/home.html", {"form": form})
+
+
+def poi_list(request):
+    form = PoiFilterForm(request.GET or None)
+
+    qs = Poi.objects.all()
+
+    if form.is_valid():
+        q = form.cleaned_data.get("q")
+        poi_type = form.cleaned_data.get("type")
+        region = form.cleaned_data.get("region")
+        season = form.cleaned_data.get("season")
+        price_level = form.cleaned_data.get("price_level")
+        physical_level = form.cleaned_data.get("physical_level")
+
+        if q:
+            qs = qs.filter(name__icontains=q) | qs.filter(short_description__icontains=q)
+        if poi_type:
+            qs = qs.filter(type=poi_type)
+        if region:
+            qs = qs.filter(region__icontains=region)
+        if season:
+            qs = qs.filter(season=season)
+        if price_level:
+            qs = qs.filter(price_level=price_level)
+        if physical_level:
+            qs = qs.filter(physical_level=physical_level)
+
+    qs = qs.order_by("-avg_rating", "base_cost", "name")
+
+    paginator = Paginator(qs, 12)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    return render(request, "tours/poi_list.html", {"form": form, "page_obj": page_obj})
+
+
+def poi_detail(request, pk: int):
+    poi = get_object_or_404(Poi, pk=pk)
+    photos = PoiPhoto.objects.filter(poi=poi).order_by("-created_at")
+    reviews = Review.objects.filter(poi=poi).select_related("user").order_by("-created_at")
+
+    map_point = None
+    if poi.latitude is not None and poi.longitude is not None:
+        map_point = {
+            "lat": float(poi.latitude),
+            "lng": float(poi.longitude),
+            "name": poi.name,
+        }
+
+    context = {
+        "poi": poi,
+        "photos": photos,
+        "reviews": reviews,
+        "map_point_json": json.dumps(map_point, cls=DjangoJSONEncoder) if map_point else "",
+        "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
+    }
+    return render(request, "tours/poi_detail.html", context)
 
 
 @login_required
