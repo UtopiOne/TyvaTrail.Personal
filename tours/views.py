@@ -1,3 +1,7 @@
+import json
+
+from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -50,10 +54,32 @@ def my_routes(request):
 @login_required
 def route_detail(request, pk: int):
     route = get_object_or_404(Route, pk=pk, user=request.user)
+
     days = get_route_days(route)
+
+    all_points = []
+    for day_points in days.values():
+        all_points.extend(day_points)
+
+    map_points = []
+    for point in all_points:
+        poi = point.poi
+        if poi.latitude is None or poi.longitude is None:
+            continue
+        map_points.append(
+            {
+                "lat": float(poi.latitude),
+                "lng": float(poi.longitude),
+                "name": poi.name,
+                "day": point.day_number,
+                "order": point.order_index,
+            }
+        )
 
     context = {
         "route": route,
         "days": days,
+        "map_points_json": json.dumps(map_points, cls=DjangoJSONEncoder),
+        "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
     }
     return render(request, "tours/route_detail.html", context)

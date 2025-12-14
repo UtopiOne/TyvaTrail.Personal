@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>{% block title %}Tyva Trail{% endblock %}</title>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 <nav>
@@ -10,18 +11,12 @@
     {% if user.is_authenticated %}
         | <a href="{% url 'profile' %}">Профиль</a>
         | <a href="{% url 'my_routes' %}">Мои маршруты</a>
-        | <form method="post" action="{% url 'logout' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit"
-                    style="background:none;border:none;padding:0;margin:0;color:inherit;cursor:pointer;">
-                Выход
-            </button>
-          </form>
+        | <a href="/accounts/logout/">Выход</a>
     {% else %}
-        | <a href="{% url 'login' %}">Вход</a>
+        | <a href="/accounts/login/">Вход</a>
+        | <a href="/accounts/signup/">Регистрация</a>
     {% endif %}
 </nav>
-
 <hr>
 {% block content %}{% endblock %}
 </body>
