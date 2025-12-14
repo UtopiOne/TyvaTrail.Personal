@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import Q
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth import login
@@ -40,7 +41,6 @@ def home(request):
 
 def poi_list(request):
     form = PoiFilterForm(request.GET or None)
-
     qs = Poi.objects.all()
 
     if form.is_valid():
@@ -52,7 +52,7 @@ def poi_list(request):
         physical_level = form.cleaned_data.get("physical_level")
 
         if q:
-            qs = qs.filter(name__icontains=q) | qs.filter(short_description__icontains=q)
+            qs = qs.filter(Q(name__icontains=q) | Q(short_description__icontains=q))
         if poi_type:
             qs = qs.filter(type=poi_type)
         if region:
@@ -69,7 +69,15 @@ def poi_list(request):
     paginator = Paginator(qs, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    return render(request, "tours/poi_list.html", {"form": form, "page_obj": page_obj})
+    params = request.GET.copy()
+    params.pop("page", None)
+    base_qs = params.urlencode()
+
+    return render(
+        request,
+        "tours/poi_list.html",
+        {"form": form, "page_obj": page_obj, "base_qs": base_qs},
+    )
 
 
 def poi_detail(request, pk: int):

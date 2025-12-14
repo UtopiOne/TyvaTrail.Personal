@@ -15,9 +15,7 @@
 <ul>
   {% for poi in page_obj.object_list %}
     <li style="margin-bottom: 12px;">
-      <a href="{% url 'poi_detail' poi.pk %}">
-        <strong>{{ poi.name }}</strong>
-      </a><br>
+      <a href="{% url 'poi_detail' poi.pk %}"><strong>{{ poi.name }}</strong></a><br>
       {{ poi.short_description }}<br>
       {% if poi.region %}Регион: {{ poi.region }}<br>{% endif %}
       Сезон: {{ poi.get_season_display }} |
@@ -32,29 +30,21 @@
 
 <div>
   {% if page_obj.has_previous %}
-    <a href="?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}
-             {% if request.GET.type %}type={{ request.GET.type|urlencode }}&{% endif %}
-             {% if request.GET.region %}region={{ request.GET.region|urlencode }}&{% endif %}
-             {% if request.GET.season %}season={{ request.GET.season|urlencode }}&{% endif %}
-             {% if request.GET.price_level %}price_level={{ request.GET.price_level|urlencode }}&{% endif %}
-             {% if request.GET.physical_level %}physical_level={{ request.GET.physical_level|urlencode }}&{% endif %}
-             page={{ page_obj.previous_page_number }}">
-      Назад
-    </a>
+    {% if base_qs %}
+      <a href="?{{ base_qs }}&page={{ page_obj.previous_page_number }}">Назад</a>
+    {% else %}
+      <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+    {% endif %}
   {% endif %}
 
   Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
 
   {% if page_obj.has_next %}
-    <a href="?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}
-             {% if request.GET.type %}type={{ request.GET.type|urlencode }}&{% endif %}
-             {% if request.GET.region %}region={{ request.GET.region|urlencode }}&{% endif %}
-             {% if request.GET.season %}season={{ request.GET.season|urlencode }}&{% endif %}
-             {% if request.GET.price_level %}price_level={{ request.GET.price_level|urlencode }}&{% endif %}
-             {% if request.GET.physical_level %}physical_level={{ request.GET.physical_level|urlencode }}&{% endif %}
-             page={{ page_obj.next_page_number }}">
-      Вперёд
-    </a>
+    {% if base_qs %}
+      <a href="?{{ base_qs }}&page={{ page_obj.next_page_number }}">Вперёд</a>
+    {% else %}
+      <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+    {% endif %}
   {% endif %}
 </div>
 {% endblock %}
