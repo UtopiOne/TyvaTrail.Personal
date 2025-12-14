@@ -2,7 +2,9 @@ import json
 
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import RouteRequestForm, UserProfileForm
@@ -83,3 +85,15 @@ def route_detail(request, pk: int):
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
     }
     return render(request, "tours/route_detail.html", context)
+
+
+def signup(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("home")
+    else:
+        form = UserCreationForm()
+    return render(request, "registration/signup.html", {"form": form})
