@@ -7,26 +7,27 @@
 <p>{{ poi.short_description }}</p>
 
 {% if poi.detailed_description %}
-  <p>{{ poi.detailed_description }}</p>
+<p>{{ poi.detailed_description }}</p>
 {% endif %}
 
 <p>
-  Тип: {{ poi.get_type_display }}<br>
-  {% if poi.region %}Регион: {{ poi.region }}<br>{% endif %}
-  Сезон: {{ poi.get_season_display }}<br>
-  Сложность: {{ poi.get_physical_level_display }}<br>
-  Цены: {{ poi.get_price_level_display }}
-  {% if poi.base_cost %} (~{{ poi.base_cost }} ₽){% endif %}
+    Рейтинг: {% if poi.avg_rating %}{{ poi.avg_rating|floatformat:1 }}/5{% else %}—{% endif %}<br>
+    Тип: {{ poi.get_type_display }}<br>
+    {% if poi.region %}Регион: {{ poi.region }}<br>{% endif %}
+    Сезон: {{ poi.get_season_display }}<br>
+    Сложность: {{ poi.get_physical_level_display }}<br>
+    Цены: {{ poi.get_price_level_display }}
+    {% if poi.base_cost %} (~{{ poi.base_cost }} ₽){% endif %}
 </p>
 
 {% if poi.address %}<p>Адрес: {{ poi.address }}</p>{% endif %}
 {% if poi.access_info %}<p>Как добраться: {{ poi.access_info }}</p>{% endif %}
 
 {% if map_point_json %}
-  <div id="map" style="height: 360px; margin: 16px 0;"></div>
+<div id="map" style="height: 360px; margin: 16px 0;"></div>
 
-  <script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
-  <script>
+<script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
+<script>
     const mapPoint = JSON.parse('{{ map_point_json|escapejs }}');
 
     function init() {
@@ -43,30 +44,42 @@
     }
 
     ymaps.ready(init);
-  </script>
+</script>
 {% else %}
-  <p><em>Координаты не указаны — карта недоступна.</em></p>
+<p><em>Координаты не указаны — карта недоступна.</em></p>
 {% endif %}
 
 <h2>Фотографии</h2>
 <ul>
-  {% for ph in photos %}
+    {% for ph in photos %}
     <li><a href="{{ ph.image_url }}" target="_blank">{{ ph.caption|default:"Фото" }}</a></li>
-  {% empty %}
+    {% empty %}
     <li>Фото пока нет.</li>
-  {% endfor %}
+    {% endfor %}
 </ul>
+
+<h2>{% if user_review %}Редактировать отзыв{% else %}Оставить отзыв{% endif %}</h2>
+
+{% if user.is_authenticated %}
+  <form method="post">
+    {% csrf_token %}
+    {{ review_form.as_p }}
+    <button type="submit">Отправить</button>
+  </form>
+{% else %}
+  <p>Чтобы оставить отзыв, нужно <a href="{% url 'login' %}">войти</a>.</p>
+{% endif %}
 
 <h2>Отзывы</h2>
 <ul>
-  {% for r in reviews %}
+    {% for r in reviews %}
     <li>
-      <strong>{{ r.user.username }}</strong> — {{ r.rating }}/5 ({{ r.created_at|date:"d.m.Y" }})<br>
-      {{ r.text|default:"(без текста)" }}
+        <strong>{{ r.user.username }}</strong> — {{ r.rating }}/5 ({{ r.created_at|date:"d.m.Y" }})<br>
+        {{ r.text|default:"(без текста)" }}
     </li>
-  {% empty %}
+    {% empty %}
     <li>Отзывов пока нет.</li>
-  {% endfor %}
+    {% endfor %}
 </ul>
 
 <p><a href="{% url 'poi_list' %}">← Назад в каталог</a></p>

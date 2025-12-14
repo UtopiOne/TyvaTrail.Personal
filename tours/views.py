@@ -7,15 +7,16 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import Avg
+from django.core.paginator import Paginator
 
 from .forms import RouteRequestForm, UserProfileForm
 from .models import Route
 from .services.route_builder import build_route_for_user
 from .services.route_queries import get_user_routes, get_route_days
-from django.core.paginator import Paginator
 from .models import Poi, PoiPhoto, Review
 from .forms import PoiFilterForm
-
+from .forms import ReviewForm
 
 
 def home(request):
@@ -82,21 +83,42 @@ def poi_list(request):
 
 def poi_detail(request, pk: int):
     poi = get_object_or_404(Poi, pk=pk)
+
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = Review.objects.filter(poi=poi, user=request.user).first()
+
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect("login")
+
+        form = ReviewForm(request.POST, instance=user_review)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.poi = poi
+            review.save()
+
+            poi.avg_rating = Review.objects.filter(poi=poi).aggregate(v=Avg("rating"))["v"]
+            poi.save(update_fields=["avg_rating"])
+
+            return redirect("poi_detail", pk=poi.pk)
+    else:
+        form = ReviewForm(instance=user_review)
+
     photos = PoiPhoto.objects.filter(poi=poi).order_by("-created_at")
     reviews = Review.objects.filter(poi=poi).select_related("user").order_by("-created_at")
 
     map_point = None
     if poi.latitude is not None and poi.longitude is not None:
-        map_point = {
-            "lat": float(poi.latitude),
-            "lng": float(poi.longitude),
-            "name": poi.name,
-        }
+        map_point = {"lat": float(poi.latitude), "lng": float(poi.longitude), "name": poi.name}
 
     context = {
         "poi": poi,
         "photos": photos,
         "reviews": reviews,
+        "review_form": form,
+        "user_review": user_review,  # <-- ВАЖНО
         "map_point_json": json.dumps(map_point, cls=DjangoJSONEncoder) if map_point else "",
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
     }
