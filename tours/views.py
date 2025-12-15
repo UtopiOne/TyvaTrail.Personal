@@ -9,14 +9,23 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg
 from django.core.paginator import Paginator
+from django.db import transaction
+from django.views.decorators.http import require_POST
 
+from .models import RoutePoint
 from .forms import RouteRequestForm, UserProfileForm
 from .models import Route
-from .services.route_builder import build_route_for_user
-from .services.route_queries import get_user_routes, get_route_days
 from .models import Poi, PoiPhoto, Review
 from .forms import PoiFilterForm
 from .forms import ReviewForm
+
+from .services.route_builder import build_route_for_user
+from .services.route_queries import get_user_routes, get_route_days
+from .services.route_editing import (
+    delete_route_point as svc_delete_route_point,
+    move_route_point_up as svc_move_route_point_up,
+    move_route_point_down as svc_move_route_point_down,
+)
 
 
 def home(request):
@@ -188,3 +197,24 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
+
+
+@login_required
+@require_POST
+def route_point_delete(request, route_pk: int, point_pk: int):
+    route = svc_delete_route_point(user=request.user, route_pk=route_pk, point_pk=point_pk)
+    return redirect("route_detail", pk=route.pk)
+
+
+@login_required
+@require_POST
+def route_point_move_up(request, route_pk: int, point_pk: int):
+    route = svc_move_route_point_up(user=request.user, route_pk=route_pk, point_pk=point_pk)
+    return redirect("route_detail", pk=route.pk)
+
+
+@login_required
+@require_POST
+def route_point_move_down(request, route_pk: int, point_pk: int):
+    route = svc_move_route_point_down(user=request.user, route_pk=route_pk, point_pk=point_pk)
+    return redirect("route_detail", pk=route.pk)

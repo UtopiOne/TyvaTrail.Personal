@@ -19,11 +19,29 @@
   <h2>День {{ day }}</h2>
   <ol>
     {% for p in points %}
-      <li>
-        <strong>{{ p.poi.name }}</strong> —
-        планируется {{ p.visit_time_estimate }} ч<br>
-        {{ p.poi.short_description }}<br>
-        {% if p.note %}<em>Примечание: {{ p.note }}</em>{% endif %}
+      <li style="margin-bottom: 12px;">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <strong>{{ p.poi.name }}</strong>
+          <span>— планируется {{ p.visit_time_estimate }} ч</span>
+
+          <form method="post" action="{% url 'route_point_move_up' route.pk p.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" {% if forloop.first %}disabled{% endif %}>↑</button>
+          </form>
+
+          <form method="post" action="{% url 'route_point_move_down' route.pk p.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" {% if forloop.last %}disabled{% endif %}>↓</button>
+          </form>
+
+          <form method="post" action="{% url 'route_point_delete' route.pk p.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('Удалить точку из маршрута?')">Удалить</button>
+          </form>
+        </div>
+
+        <div>{{ p.poi.short_description }}</div>
+        {% if p.note %}<div><em>Примечание: {{ p.note }}</em></div>{% endif %}
       </li>
     {% endfor %}
   </ol>
@@ -36,9 +54,7 @@
     const pointsData = JSON.parse('{{ map_points_json|default:"[]"|escapejs }}');
 
     function init() {
-        if (!pointsData.length) {
-            return;
-        }
+        if (!pointsData.length) return;
 
         const coords = pointsData.map(p => [p.lat, p.lng]);
         const first = coords[0];
@@ -51,24 +67,17 @@
 
         pointsData.forEach(p => {
             const placemark = new ymaps.Placemark(
-
                 [p.lat, p.lng],
                 {
                     balloonContentHeader: 'День ' + p.day,
                     balloonContentBody: p.name
                 },
-                {
-                    preset: 'islands#blueCircleIcon'
-                }
+                { preset: 'islands#blueCircleIcon' }
             );
             map.geoObjects.add(placemark);
         });
 
-        const polyline = new ymaps.Polyline(
-            coords,
-            {},
-            { strokeWidth: 4 }
-        );
+        const polyline = new ymaps.Polyline(coords, {}, { strokeWidth: 4 });
         map.geoObjects.add(polyline);
 
         const bounds = polyline.geometry.getBounds();
