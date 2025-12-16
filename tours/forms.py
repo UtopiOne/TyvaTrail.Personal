@@ -1,5 +1,6 @@
 from django import forms
 
+from .models import Poi
 from .models import Review
 from .models import UserProfile
 from .models import PoiType, Season, PriceLevel, PhysicalLevel
@@ -55,3 +56,18 @@ class ReviewForm(forms.ModelForm):
         fields = ["rating", "text"]
         labels = {"text": "Текст отзыва"}
 
+class RoutePointAddForm(forms.Form):
+    poi = forms.ModelChoiceField(
+        queryset=Poi.objects.all().order_by("name"),
+        label="Точка интереса"
+    )
+    day_number = forms.IntegerField(
+        label="День",
+        min_value=1,
+        initial=1
+    )
+    note = forms.CharField(
+        label="Примечание",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 2})
+    )

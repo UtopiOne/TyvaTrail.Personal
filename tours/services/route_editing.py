@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.db.models import Max
 
 from ..models import Route, RoutePoint
 
@@ -63,6 +64,34 @@ def move_route_point_down(*, user, route_pk: int, point_pk: int) -> Route:
         point.order_index, neighbor.order_index = neighbor.order_index, point.order_index
         point.save(update_fields=["order_index"])
         neighbor.save(update_fields=["order_index"])
+
+    return route
+
+
+def add_route_point(*, user, route_pk: int, poi, day_number: int, note: str = "") -> Route:
+    route = get_object_or_404(Route, pk=route_pk, user=user)
+
+    # нормализуем день
+    day_number = max(1, min(int(day_number), route.days_count))
+
+    next_order = (
+        RoutePoint.objects
+        .filter(route=route, day_number=day_number)
+        .aggregate(m=Max("order_index"))["m"] or 0
+    ) + 1
+
+    with transaction.atomic():
+        RoutePoint.objects.create(
+            route=route,
+            poi=poi,
+            day_number=day_number,
+            order_index=next_order,
+            note=note or "",
+            visit_time_estimate=poi.visit_duration_hours,
+        )
+        # эти хелперы пусть остаются внутри сервиса
+        _reindex_day(route, day_number)
+        _recalc_route_totals(route)
 
     return route
 

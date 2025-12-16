@@ -9,7 +9,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg
 from django.core.paginator import Paginator
-from django.db import transaction
 from django.views.decorators.http import require_POST
 
 from .models import RoutePoint
@@ -18,10 +17,12 @@ from .models import Route
 from .models import Poi, PoiPhoto, Review
 from .forms import PoiFilterForm
 from .forms import ReviewForm
+from .forms import RoutePointAddForm
 
 from .services.route_builder import build_route_for_user
 from .services.route_queries import get_user_routes, get_route_days
 from .services.route_editing import (
+    add_route_point as svc_add_route_point,
     delete_route_point as svc_delete_route_point,
     move_route_point_up as svc_move_route_point_up,
     move_route_point_down as svc_move_route_point_down,
@@ -178,11 +179,14 @@ def route_detail(request, pk: int):
             }
         )
 
+    add_point_form = RoutePointAddForm(initial={"day_number": 1})
+
     context = {
         "route": route,
         "days": days,
         "map_points_json": json.dumps(map_points, cls=DjangoJSONEncoder),
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
+        "add_point_form": add_point_form,
     }
     return render(request, "tours/route_detail.html", context)
 
@@ -218,3 +222,19 @@ def route_point_move_up(request, route_pk: int, point_pk: int):
 def route_point_move_down(request, route_pk: int, point_pk: int):
     route = svc_move_route_point_down(user=request.user, route_pk=route_pk, point_pk=point_pk)
     return redirect("route_detail", pk=route.pk)
+
+
+@login_required
+@require_POST
+def route_point_add(request, route_pk: int):
+    form = RoutePointAddForm(request.POST)
+    if form.is_valid():
+        svc_add_route_point(
+            user=request.user,
+            route_pk=route_pk,
+            poi=form.cleaned_data["poi"],
+            day_number=form.cleaned_data["day_number"],
+            note=form.cleaned_data.get("note", ""),
+        )
+
+    return redirect("route_detail", pk=route_pk)

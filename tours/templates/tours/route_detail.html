@@ -13,6 +13,13 @@
   {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}
 </p>
 
+<h2>Добавить точку</h2>
+<form method="post" action="{% url 'route_point_add' route.pk %}" style="margin-bottom:16px;">
+  {% csrf_token %}
+  {{ add_point_form.as_p }}
+  <button type="submit">Добавить в маршрут</button>
+</form>
+
 <div id="map" style="height: 400px; margin-bottom: 24px;"></div>
 
 {% for day, points in days.items %}
