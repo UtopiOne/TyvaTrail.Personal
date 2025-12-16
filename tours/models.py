@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -177,6 +179,14 @@ class Route(models.Model):
     equipment = models.TextField("Необходимая экипировка", blank=True)
 
     created_at = models.DateTimeField("Создано", auto_now_add=True)
+
+    share_uuid = models.UUIDField(
+        "Токен для ссылки",
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+    is_shared = models.BooleanField("Доступ по ссылке", default=False)
 
     class Meta:
         verbose_name = "Маршрут"

@@ -17,6 +17,23 @@
   {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}
 </p>
 
+<h2>Доступ по ссылке</h2>
+
+<form method="post" action="{% url 'route_share_toggle' route.pk %}" style="margin-bottom:12px;">
+  {% csrf_token %}
+  <button type="submit">
+    {% if route.is_shared %}Отключить доступ по ссылке{% else %}Включить доступ по ссылке{% endif %}
+  </button>
+</form>
+
+{% if share_url %}
+  <div style="margin-bottom:16px;">
+    <div>Ссылка:</div>
+    <a id="shareLink" href="{{ share_url }}" target="_blank">{{ share_url }}</a>
+    <button type="button" onclick="navigator.clipboard.writeText('{{ share_url }}')">Копировать</button>
+  </div>
+{% endif %}
+
 <h2>Добавить точку</h2>
 <form method="post" action="{% url 'route_point_add' route.pk %}" style="margin-bottom:16px;">
   {% csrf_token %}

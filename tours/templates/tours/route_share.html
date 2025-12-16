@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Маршрут {{ route.name }}{% endblock %}
+
+{% block content %}
+<style>
+  @media print {
+    .no-print { display: none !important; }
+  }
+</style>
+
+<div class="no-print" style="margin-bottom: 12px;">
+  <button onclick="window.print()">Печать / Сохранить PDF</button>
+</div>
+
+<h1>Индивидуальный маршрут по Тыве</h1>
+
+<p>
+  Дней: {{ route.days_count }}<br>
+  Общее время: {{ route.total_duration_hours }} ч<br>
+  Ориентировочная стоимость:
+  {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}
+</p>
+
+<div id="map" style="height: 400px; margin-bottom: 24px;"></div>
+
+{% for day, points in days.items %}
+  <h2>День {{ day }}</h2>
+  <ol>
+    {% for p in points %}
+      <li style="margin-bottom: 10px;">
+        <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч<br>
+        {{ p.poi.short_description }}<br>
+        {% if p.note %}<em>Примечание: {{ p.note }}</em>{% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+{% empty %}
+  <p>В этом маршруте пока нет точек.</p>
+{% endfor %}
+
+<script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
+<script>
+  const pointsData = JSON.parse('{{ map_points_json|default:"[]"|escapejs }}');
+
+  function init() {
+    if (!pointsData.length) return;
+
+    const coords = pointsData.map(p => [p.lat, p.lng]);
+    const first = coords[0];
+
+    const map = new ymaps.Map('map', {
+      center: first,
+      zoom: 7,
+      controls: ['zoomControl']
+    });
+
+    pointsData.forEach(p => {
+      const placemark = new ymaps.Placemark(
+        [p.lat, p.lng],
+        { balloonContentHeader: 'День ' + p.day, balloonContentBody: p.name },
+        { preset: 'islands#blueCircleIcon' }
+      );
+      map.geoObjects.add(placemark);
+    });
+
+    const polyline = new ymaps.Polyline(coords, {}, { strokeWidth: 4 });
+    map.geoObjects.add(polyline);
+
+    const bounds = polyline.geometry.getBounds();
+    if (bounds) map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 20 });
+  }
+
+  ymaps.ready(init);
+</script>
+{% endblock %}
