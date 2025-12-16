@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Печать — {{ route.name }}</title>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    h1 { margin: 0 0 8px; }
+    .meta { margin: 0 0 16px; }
+    .day { margin: 18px 0 10px; }
+    ol { padding-left: 18px; }
+    li { margin: 8px 0; }
+
+    /* Печать */
+    @media print {
+      .no-print { display: none !important; }
+      body { margin: 0; }
+      a { color: #000; text-decoration: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="no-print" style="margin-bottom: 16px;">
+    <button onclick="window.print()">Печать / Сохранить PDF</button>
+  </div>
+
+  <h1>{{ route.name }}</h1>
+  <p class="meta">
+    Дней: {{ route.days_count }}<br>
+    Общее время: {{ route.total_duration_hours }} ч<br>
+    Ориентировочная стоимость:
+    {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}
+  </p>
+
+  {% for day, points in days.items %}
+    <h2 class="day">День {{ day }}</h2>
+    <ol>
+      {% for p in points %}
+        <li>
+          <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч<br>
+          {{ p.poi.short_description }}<br>
+          {% if p.note %}<em>Примечание: {{ p.note }}</em>{% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  {% empty %}
+    <p>В этом маршруте пока нет точек.</p>
+  {% endfor %}
+</body>
+</html>

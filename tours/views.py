@@ -238,3 +238,14 @@ def route_point_add(request, route_pk: int):
         )
 
     return redirect("route_detail", pk=route_pk)
+
+@login_required
+def route_print(request, pk: int):
+    route = get_object_or_404(Route, pk=pk, user=request.user)
+    days = get_route_days(route)
+
+    context = {
+        "route": route,
+        "days": days,
+    }
+    return render(request, "tours/route_print.html", context)

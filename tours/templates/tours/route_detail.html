@@ -7,6 +7,10 @@
 <h1>{{ route.name }}</h1>
 
 <p>
+  <a href="{% url 'route_print' route.pk %}" target="_blank">Печать / PDF</a>
+</p>
+
+<p>
   Дней: {{ route.days_count }}<br>
   Общее время: {{ route.total_duration_hours }} ч<br>
   Ориентировочная стоимость:

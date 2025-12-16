@@ -7,6 +7,7 @@ urlpatterns = [
     path("profile/", views.profile_view, name="profile"),
     path("my-routes/", views.my_routes, name="my_routes"),
     path("routes/<int:pk>/", views.route_detail, name="route_detail"),
+    path("routes/<int:pk>/print/", views.route_print, name="route_print"),  # <-- NEW
 
     path("places/", views.poi_list, name="poi_list"),
     path("places/<int:pk>/", views.poi_detail, name="poi_detail"),
