@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Админ-статистика{% endblock %}
+
+{% block content %}
+<h1>Админ-статистика</h1>
+
+<ul>
+  <li>POI всего: <strong>{{ total_poi }}</strong></li>
+  <li>Маршрутов всего: <strong>{{ total_routes }}</strong></li>
+  <li>Отзывы всего: <strong>{{ total_reviews }}</strong></li>
+  <li>Маршрутов с доступом по ссылке: <strong>{{ shared_routes }}</strong></li>
+  <li>Маршрутов за 7 дней: <strong>{{ routes_7d }}</strong></li>
+  <li>Отзывов за 7 дней: <strong>{{ reviews_7d }}</strong></li>
+</ul>
+
+<h2>Топ POI по добавлениям в маршруты</h2>
+<ol>
+  {% for row in top_poi_by_usage %}
+    <li>{{ row.poi__name }} — {{ row.uses }}</li>
+  {% empty %}
+    <li>Пока нет данных.</li>
+  {% endfor %}
+</ol>
+
+<h2>Топ POI по рейтингу</h2>
+<ol>
+  {% for p in top_poi_by_rating %}
+    <li>{{ p.name }} — {{ p.avg_rating|floatformat:1 }}/5</li>
+  {% empty %}
+    <li>Пока нет данных.</li>
+  {% endfor %}
+</ol>
+{% endblock %}

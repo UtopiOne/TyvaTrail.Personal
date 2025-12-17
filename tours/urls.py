@@ -10,6 +10,7 @@ urlpatterns = [
     path("routes/<int:pk>/print/", views.route_print, name="route_print"),
     path("routes/<int:pk>/share-toggle/", views.route_share_toggle, name="route_share_toggle"),
     path("routes/share/<uuid:share_uuid>/", views.route_share_detail, name="route_share_detail"),
+    path("dashboard/", views.admin_stats, name="admin_stats"),
 
     path("places/", views.poi_list, name="poi_list"),
     path("places/<int:pk>/", views.poi_detail, name="poi_detail"),

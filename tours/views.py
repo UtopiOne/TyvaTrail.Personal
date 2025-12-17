@@ -11,7 +11,12 @@ from django.db.models import Avg
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 from django.urls import reverse
+from datetime import timedelta
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Count
+from django.utils import timezone
 
+from .models import  RoutePoint
 from .forms import RouteRequestForm, UserProfileForm
 from .models import Route
 from .models import Poi, PoiPhoto, Review
@@ -297,3 +302,41 @@ def route_share_detail(request, share_uuid):
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
     }
     return render(request, "tours/route_share.html", context)
+
+
+@staff_member_required
+def admin_stats(request):
+    now = timezone.now()
+    week_ago = now - timedelta(days=7)
+
+    total_poi = Poi.objects.count()
+    total_routes = Route.objects.count()
+    total_reviews = Review.objects.count()
+    shared_routes = Route.objects.filter(is_shared=True).count()
+
+    routes_7d = Route.objects.filter(created_at__gte=week_ago).count()
+    reviews_7d = Review.objects.filter(created_at__gte=week_ago).count()
+
+    top_poi_by_usage = (
+        RoutePoint.objects
+        .values("poi__id", "poi__name")
+        .annotate(uses=Count("id"))
+        .order_by("-uses")[:10]
+    )
+
+    top_poi_by_rating = (
+        Poi.objects
+        .exclude(avg_rating__isnull=True)
+        .order_by("-avg_rating")[:10]
+    )
+
+    return render(request, "tours/admin_stats.html", {
+        "total_poi": total_poi,
+        "total_routes": total_routes,
+        "total_reviews": total_reviews,
+        "shared_routes": shared_routes,
+        "routes_7d": routes_7d,
+        "reviews_7d": reviews_7d,
+        "top_poi_by_usage": top_poi_by_usage,
+        "top_poi_by_rating": top_poi_by_rating,
+    })
