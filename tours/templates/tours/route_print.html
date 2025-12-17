@@ -35,6 +35,11 @@
     {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}
   </p>
 
+  {% if route.equipment %}
+  <h2>Экипировка</h2>
+  <div style="white-space: pre-line;">{{ route.equipment }}</div>
+  {% endif %}
+
   {% for day, points in days.items %}
     <h2 class="day">День {{ day }}</h2>
     <ol>

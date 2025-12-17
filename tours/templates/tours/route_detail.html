@@ -17,6 +17,11 @@
   {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}
 </p>
 
+{% if route.equipment %}
+  <h2>Экипировка</h2>
+  <div style="white-space: pre-line;">{{ route.equipment }}</div>
+{% endif %}
+
 <h2>Доступ по ссылке</h2>
 
 <form method="post" action="{% url 'route_share_toggle' route.pk %}" style="margin-bottom:12px;">

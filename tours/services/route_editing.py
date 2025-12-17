@@ -4,6 +4,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.db.models import Max
 
+from .route_equipment import update_route_equipment
 from ..models import Route, RoutePoint
 
 
@@ -89,7 +90,6 @@ def add_route_point(*, user, route_pk: int, poi, day_number: int, note: str = ""
             note=note or "",
             visit_time_estimate=poi.visit_duration_hours,
         )
-        # эти хелперы пусть остаются внутри сервиса
         _reindex_day(route, day_number)
         _recalc_route_totals(route)
 
@@ -121,3 +121,5 @@ def _recalc_route_totals(route: Route) -> None:
     route.total_duration_hours = int(total_hours)
     route.total_cost = total_cost or None
     route.save(update_fields=["total_duration_hours", "total_cost"])
+    update_route_equipment(route)
+

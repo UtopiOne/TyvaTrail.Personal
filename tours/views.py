@@ -243,16 +243,17 @@ def route_point_move_down(request, route_pk: int, point_pk: int):
 @require_POST
 def route_point_add(request, route_pk: int):
     form = RoutePointAddForm(request.POST)
-    if form.is_valid():
-        svc_add_route_point(
-            user=request.user,
-            route_pk=route_pk,
-            poi=form.cleaned_data["poi"],
-            day_number=form.cleaned_data["day_number"],
-            note=form.cleaned_data.get("note", ""),
-        )
+    if not form.is_valid():
+        return redirect("route_detail", pk=route_pk)
 
-    return redirect("route_detail", pk=route_pk)
+    route = svc_add_route_point(
+        user=request.user,
+        route_pk=route_pk,
+        poi=form.cleaned_data["poi"],
+        day_number=form.cleaned_data["day_number"],
+        note=form.cleaned_data.get("note", ""),
+    )
+    return redirect("route_detail", pk=route.pk)
 
 
 @login_required

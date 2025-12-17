@@ -1,5 +1,6 @@
 from typing import Optional
 
+from .route_equipment import update_route_equipment
 from .poi_preferences import apply_profile_preferences
 from ..models import (
     Poi,
@@ -61,5 +62,6 @@ def build_route_for_user(
     route.total_duration_hours = int((current_day - 1) * 8 + current_hours)
     route.total_cost = total_cost or None
     route.save()
+    update_route_equipment(route)
 
     return route
