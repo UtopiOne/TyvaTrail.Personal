@@ -1,13 +1,10 @@
 from typing import Optional
 
+from .poi_preferences import apply_profile_preferences
 from ..models import (
     Poi,
     Route,
     RoutePoint,
-    UserProfile,
-    PhysicalLevel,
-    PriceLevel,
-    Season,
 )
 
 
@@ -16,20 +13,13 @@ def build_route_for_user(
         days_count: int,
         max_budget: Optional[int] = None,
 ) -> Route:
-    profile: UserProfile = user.profile
+    profile = getattr(user, "profile", None)
 
     qs = Poi.objects.all()
-    qs = qs.filter(season__in=[profile.preferred_season, Season.YEAR_ROUND])
-
-    if profile.physical_level == PhysicalLevel.EASY:
-        qs = qs.exclude(physical_level=PhysicalLevel.HARD)
-
-    if profile.budget_level == PriceLevel.LOW:
-        qs = qs.filter(price_level__in=[PriceLevel.LOW, PriceLevel.MEDIUM])
-    elif profile.budget_level == PriceLevel.MEDIUM:
-        qs = qs.filter(price_level__in=[PriceLevel.LOW, PriceLevel.MEDIUM, PriceLevel.HIGH])
-
-    qs = qs.order_by("-avg_rating", "base_cost")
+    if profile:
+        qs = apply_profile_preferences(qs, profile)
+    else:
+        qs = qs.order_by("-avg_rating", "base_cost")
 
     route = Route.objects.create(
         user=user,
