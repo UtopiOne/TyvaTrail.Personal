@@ -24,6 +24,7 @@ from .forms import PoiFilterForm
 from .forms import ReviewForm
 from .forms import RoutePointAddForm
 
+from .services.route_logistics_presenter import build_logistics_context
 from .services.route_map import get_route_map_points_json
 from .services.route_queries import get_user_history
 from .services.route_history import log_route_generation
@@ -166,7 +167,6 @@ def my_routes(request):
 @login_required
 def route_detail(request, pk: int):
     route = get_object_or_404(Route, pk=pk, user=request.user)
-
     days = get_route_days(route)
 
     add_point_form = RoutePointAddForm(initial={"day_number": 1})
@@ -180,14 +180,13 @@ def route_detail(request, pk: int):
     context = {
         "route": route,
         "days": days,
+        **build_logistics_context(days),
         "map_points_json": get_route_map_points_json(route),
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
         "add_point_form": add_point_form,
         "share_url": share_url,
     }
-
     return render(request, "tours/route_detail.html", context)
-
 
 def signup(request):
     if request.method == "POST":
@@ -247,6 +246,7 @@ def route_print(request, pk: int):
     context = {
         "route": route,
         "days": days,
+        **build_logistics_context(days),
     }
     return render(request, "tours/route_print.html", context)
 
@@ -262,12 +262,12 @@ def route_share_toggle(request, pk: int):
 
 def route_share_detail(request, share_uuid):
     route = get_object_or_404(Route, share_uuid=share_uuid, is_shared=True)
-
     days = get_route_days(route)
 
     context = {
         "route": route,
         "days": days,
+        **build_logistics_context(days),
         "map_points_json": get_route_map_points_json(route),
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
     }

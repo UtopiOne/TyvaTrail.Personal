@@ -13,7 +13,6 @@
     ol { padding-left: 18px; }
     li { margin: 8px 0; }
 
-    /* Печать */
     @media print {
       .no-print { display: none !important; }
       body { margin: 0; }
@@ -23,27 +22,40 @@
 </head>
 
 <body>
+{% load timefmt %}
+
   <div class="no-print" style="margin-bottom: 16px;">
     <button onclick="window.print()">Печать / Сохранить PDF</button>
   </div>
 
   <h1>{{ route.name }}</h1>
+
   <p class="meta">
     Дней: {{ route.days_count }}<br>
     Общее время: {{ route.total_duration_hours }} ч<br>
     Ориентировочная стоимость:
-    {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}
+    {% if route.total_cost %}{{ route.total_cost }} ₽{% else %}—{% endif %}<br>
+
+    {% if logistics_total_km %}
+      В пути (оценка): ~{{ logistics_total_km|floatformat:1 }} км, ~{{ logistics_total_minutes|minutes_human }}
+    {% endif %}
   </p>
 
   {% if route.equipment %}
-  <h2>Экипировка</h2>
-  <div style="white-space: pre-line;">{{ route.equipment }}</div>
+    <h2>Экипировка</h2>
+    <div style="white-space: pre-line;">{{ route.equipment }}</div>
   {% endif %}
 
-  {% for day, points in days.items %}
-    <h2 class="day">День {{ day }}</h2>
+  {% for b in day_blocks %}
+    <h2 class="day">
+      День {{ b.day }}
+      {% if b.distance_km %}
+        — ~{{ b.distance_km|floatformat:1 }} км, ~{{ b.time_minutes|minutes_human }} в пути
+      {% endif %}
+    </h2>
+
     <ol>
-      {% for p in points %}
+      {% for p in b.points %}
         <li>
           <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч<br>
           {{ p.poi.short_description }}<br>
