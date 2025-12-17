@@ -9,12 +9,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg
 from django.core.paginator import Paginator
-from django.views.decorators.http import require_POST
 from django.urls import reverse
 from datetime import timedelta
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Count
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from .models import RoutePoint
 from .forms import RouteRequestForm, UserProfileForm
@@ -24,6 +24,7 @@ from .forms import PoiFilterForm
 from .forms import ReviewForm
 from .forms import RoutePointAddForm
 
+from .services.route_optimizer import optimize_route_points
 from .services.route_logistics_presenter import build_logistics_context
 from .services.route_map import get_route_map_points_json
 from .services.route_queries import get_user_history
@@ -316,3 +317,11 @@ def admin_stats(request):
 def history_view(request):
     items = get_user_history(request.user)
     return render(request, "tours/history.html", {"items": items})
+
+
+@login_required
+@require_POST
+def route_optimize(request, pk: int):
+    route = get_object_or_404(Route, pk=pk, user=request.user)
+    optimize_route_points(route)
+    return redirect("route_detail", pk=route.pk)

@@ -54,6 +54,11 @@
     <button type="submit">Добавить в маршрут</button>
 </form>
 
+<form class="no-print" method="post" action="{% url 'route_optimize' route.pk %}" style="margin: 12px 0;">
+  {% csrf_token %}
+  <button type="submit">Оптимизировать порядок точек</button>
+</form>
+
 <div id="map" style="height: 400px; margin-bottom: 24px;"></div>
 
 {% for b in day_blocks %}
