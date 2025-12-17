@@ -24,6 +24,7 @@ from .forms import PoiFilterForm
 from .forms import ReviewForm
 from .forms import RoutePointAddForm
 
+from .services.route_map import get_route_map_points_json
 from .services.route_queries import get_user_history
 from .services.route_history import log_route_generation
 from .services.route_builder import build_route_for_user
@@ -168,25 +169,6 @@ def route_detail(request, pk: int):
 
     days = get_route_days(route)
 
-    all_points = []
-    for day_points in days.values():
-        all_points.extend(day_points)
-
-    map_points = []
-    for point in all_points:
-        poi = point.poi
-        if poi.latitude is None or poi.longitude is None:
-            continue
-        map_points.append(
-            {
-                "lat": float(poi.latitude),
-                "lng": float(poi.longitude),
-                "name": poi.name,
-                "day": point.day_number,
-                "order": point.order_index,
-            }
-        )
-
     add_point_form = RoutePointAddForm(initial={"day_number": 1})
 
     share_url = None
@@ -198,11 +180,12 @@ def route_detail(request, pk: int):
     context = {
         "route": route,
         "days": days,
-        "map_points_json": json.dumps(map_points, cls=DjangoJSONEncoder),
+        "map_points_json": get_route_map_points_json(route),
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
         "add_point_form": add_point_form,
         "share_url": share_url,
     }
+
     return render(request, "tours/route_detail.html", context)
 
 
@@ -282,29 +265,10 @@ def route_share_detail(request, share_uuid):
 
     days = get_route_days(route)
 
-    all_points = []
-    for day_points in days.values():
-        all_points.extend(day_points)
-
-    map_points = []
-    for point in all_points:
-        poi = point.poi
-        if poi.latitude is None or poi.longitude is None:
-            continue
-        map_points.append(
-            {
-                "lat": float(poi.latitude),
-                "lng": float(poi.longitude),
-                "name": poi.name,
-                "day": point.day_number,
-                "order": point.order_index,
-            }
-        )
-
     context = {
         "route": route,
         "days": days,
-        "map_points_json": json.dumps(map_points, cls=DjangoJSONEncoder),
+        "map_points_json": get_route_map_points_json(route),
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
     }
     return render(request, "tours/route_share.html", context)
