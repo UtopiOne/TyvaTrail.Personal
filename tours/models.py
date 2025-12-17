@@ -246,3 +246,30 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Отзыв {self.user.username} о {self.poi.name}"
+
+class RouteGeneration(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="route_generations",
+        verbose_name="Пользователь",
+    )
+    route = models.ForeignKey(
+        "Route",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="generation_logs",
+        verbose_name="Маршрут",
+    )
+    days_count = models.PositiveIntegerField("Дней")
+    max_budget = models.PositiveIntegerField("Бюджет (₽)", null=True, blank=True)
+    created_at = models.DateTimeField("Создано", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "История подбора маршрута"
+        verbose_name_plural = "История подбора маршрутов"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} — {self.days_count}д (до {self.max_budget or '—'}₽)"

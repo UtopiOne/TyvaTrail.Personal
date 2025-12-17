@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}История{% endblock %}
+{% block content %}
+
+
+<h1>История</h1>
+
+{% include "tours/_cabinet_tabs.html" %}
+
+<ul>
+  {% for it in items %}
+    <li style="margin-bottom: 10px;">
+      <strong>{{ it.created_at|date:"d.m.Y H:i" }}</strong> —
+      {{ it.days_count }} дн.,
+      бюджет: {% if it.max_budget %}до {{ it.max_budget }} ₽{% else %}—{% endif %}
+      {% if it.route %}
+        — <a href="{% url 'route_detail' it.route.pk %}">Открыть маршрут</a>
+        | <a href="{% url 'route_print' it.route.pk %}" target="_blank">Печать/PDF</a>
+      {% else %}
+        — (маршрут удалён)
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>История пока пустая. Сформируй маршрут на главной.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from ..models import Route, RoutePoint
+from ..models import Route, RoutePoint, RouteGeneration
 
 
 def get_user_routes(user):
@@ -18,3 +18,12 @@ def get_route_days(route: Route):
         days.setdefault(point.day_number, []).append(point)
 
     return days
+
+
+def get_user_history(user):
+    return (
+        RouteGeneration.objects
+        .filter(user=user)
+        .select_related("route")
+        .order_by("-created_at")
+    )

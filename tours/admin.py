@@ -1,9 +1,7 @@
-# tours/admin.py
 from django.contrib import admin
-from django.db.models import Count
-from django.utils.html import format_html
 import uuid
 
+from .models import RouteGeneration
 from .models import Poi, PoiPhoto, UserProfile, Route, RoutePoint, Review
 
 
@@ -94,3 +92,9 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ("poi__name", "user__username")
     readonly_fields = ("created_at",)
     autocomplete_fields = ("poi", "user")
+
+@admin.register(RouteGeneration)
+class RouteGenerationAdmin(admin.ModelAdmin):
+    list_display = ("user", "route", "days_count", "max_budget", "created_at")
+    search_fields = ("user__username", "route__name")
+    readonly_fields = ("created_at",)

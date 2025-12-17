@@ -16,7 +16,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Count
 from django.utils import timezone
 
-from .models import  RoutePoint
+from .models import RoutePoint
 from .forms import RouteRequestForm, UserProfileForm
 from .models import Route
 from .models import Poi, PoiPhoto, Review
@@ -24,6 +24,8 @@ from .forms import PoiFilterForm
 from .forms import ReviewForm
 from .forms import RoutePointAddForm
 
+from .services.route_queries import get_user_history
+from .services.route_history import log_route_generation
 from .services.route_builder import build_route_for_user
 from .services.route_queries import get_user_routes, get_route_days
 from .services.route_editing import (
@@ -48,6 +50,7 @@ def home(request):
                 days_count=days_count,
                 max_budget=max_budget,
             )
+            log_route_generation(user=request.user, route=route, days_count=days_count, max_budget=max_budget)
             return redirect("route_detail", pk=route.pk)
     else:
         form = RouteRequestForm()
@@ -251,6 +254,7 @@ def route_point_add(request, route_pk: int):
 
     return redirect("route_detail", pk=route_pk)
 
+
 @login_required
 def route_print(request, pk: int):
     route = get_object_or_404(Route, pk=pk, user=request.user)
@@ -261,6 +265,7 @@ def route_print(request, pk: int):
         "days": days,
     }
     return render(request, "tours/route_print.html", context)
+
 
 @login_required
 @require_POST
@@ -340,3 +345,9 @@ def admin_stats(request):
         "top_poi_by_usage": top_poi_by_usage,
         "top_poi_by_rating": top_poi_by_rating,
     })
+
+
+@login_required
+def history_view(request):
+    items = get_user_history(request.user)
+    return render(request, "tours/history.html", {"items": items})

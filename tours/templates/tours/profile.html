@@ -3,6 +3,7 @@
 
 {% block content %}
 <h1>Профиль</h1>
+{% include "tours/_cabinet_tabs.html" %}
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
