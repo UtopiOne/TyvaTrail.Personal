@@ -31,6 +31,21 @@
 
 <div id="map" style="height: 400px; margin-bottom: 24px;"></div>
 
+{% if external_conditions.points %}
+  <ul>
+    {% for item in external_conditions.points %}
+      <li>
+        <strong>{{ item.point.poi.name }}</strong>:
+        t={{ item.weather.temperature_c|default_if_none:"—" }}°C,
+        ветер={{ item.weather.wind_speed_ms|floatformat:1|default:"—" }} м/с
+        {% if item.place.opening_hours %} • часы: {{ item.place.opening_hours }}{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p style="opacity:.7;">Пока нет данных по условиям.</p>
+{% endif %}
+
 {% for b in day_blocks %}
   <h2>
     День {{ b.day }}

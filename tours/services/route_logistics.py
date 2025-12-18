@@ -1,59 +1,41 @@
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Any
 
-from .geo import haversine_km
-from ..models import RoutePoint
+from .external_conditions import get_external_provider
 
+def compute_logistics_for_days(days: dict[int, list[Any]]):
+    provider = get_external_provider()
 
-DEFAULT_SPEED_KMPH = 60
-
-
-def compute_logistics_for_points(points: Iterable[RoutePoint], speed_kmph: int = DEFAULT_SPEED_KMPH) -> tuple[float | None, int | None]:
-    pts = list(points)
-    if len(pts) < 2:
-        return None, None
-
-    total_km = 0.0
-    segments = 0
-
-    for a, b in zip(pts, pts[1:]):
-        pa = a.poi
-        pb = b.poi
-        if not pa or not pb:
-            continue
-        if pa.latitude is None or pa.longitude is None:
-            continue
-        if pb.latitude is None or pb.longitude is None:
-            continue
-
-        km = haversine_km(float(pa.latitude), float(pa.longitude), float(pb.latitude), float(pb.longitude))
-        total_km += km
-        segments += 1
-
-    if segments == 0:
-        return None, None
-
-    minutes = int(round((total_km / max(speed_kmph, 1)) * 60))
-    return total_km, minutes
-
-
-def compute_logistics_for_days(days: dict[int, list[RoutePoint]]) -> tuple[dict[int, dict], float | None, int | None]:
-    day_stats: dict[int, dict] = {}
+    day_stats: dict[int, dict[str, Any]] = {}
     total_km = 0.0
     total_min = 0
-    any_segment = False
 
     for day, points in days.items():
-        km, minutes = compute_logistics_for_points(points)
-        day_stats[day] = {"distance_km": km, "time_minutes": minutes}
+        pts = []
+        for p in points:
+            poi = getattr(p, "poi", None)
+            lat = getattr(poi, "latitude", None) if poi else None
+            lon = getattr(poi, "longitude", None) if poi else None
+            if lat is None or lon is None:
+                continue
+            pts.append((float(lat), float(lon)))
 
-        if km is not None and minutes is not None:
-            any_segment = True
-            total_km += km
-            total_min += minutes
+        if len(pts) < 2:
+            day_stats[day] = {"distance_km": None, "time_minutes": None}
+            continue
 
-    if not any_segment:
-        return day_stats, None, None
+        d_km = 0.0
+        t_min = 0
+        for i in range(len(pts) - 1):
+            lat1, lon1 = pts[i]
+            lat2, lon2 = pts[i + 1]
+            leg = provider.driving_leg(lat1, lon1, lat2, lon2)
+            d_km += float(leg.distance_km)
+            t_min += int(leg.duration_min)
+
+        day_stats[day] = {"distance_km": d_km, "time_minutes": t_min}
+        total_km += d_km
+        total_min += t_min
 
     return day_stats, total_km, total_min

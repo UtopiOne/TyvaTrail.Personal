@@ -24,6 +24,7 @@ from .forms import PoiFilterForm
 from .forms import ReviewForm
 from .forms import RoutePointAddForm
 
+from .services.external_conditions.presenter import build_external_conditions_context
 from .services.route_optimizer import optimize_route_points
 from .services.route_logistics_presenter import build_logistics_context
 from .services.route_map import get_route_map_points_json
@@ -182,6 +183,7 @@ def route_detail(request, pk: int):
         "route": route,
         "days": days,
         **build_logistics_context(days),
+        **build_external_conditions_context(route=route),
         "map_points_json": get_route_map_points_json(route),
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
         "add_point_form": add_point_form,
@@ -246,7 +248,6 @@ def route_print(request, pk: int):
 
     context = {
         "route": route,
-        "days": days,
         **build_logistics_context(days),
     }
     return render(request, "tours/route_print.html", context)
@@ -269,6 +270,7 @@ def route_share_detail(request, share_uuid):
         "route": route,
         "days": days,
         **build_logistics_context(days),
+        **build_external_conditions_context(route=route),
         "map_points_json": get_route_map_points_json(route),
         "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
     }

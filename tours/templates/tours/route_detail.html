@@ -55,11 +55,32 @@
 </form>
 
 <form class="no-print" method="post" action="{% url 'route_optimize' route.pk %}" style="margin: 12px 0;">
-  {% csrf_token %}
-  <button type="submit">Оптимизировать порядок точек</button>
+    {% csrf_token %}
+    <button type="submit">Оптимизировать порядок точек</button>
 </form>
 
 <div id="map" style="height: 400px; margin-bottom: 24px;"></div>
+
+<h2>Условия (погода/дорога)</h2>
+<p style="opacity:.75;">
+  Провайдер: {{ external_conditions.provider|default:"—" }}
+  {% if external_conditions_updated_at %} • Обновлено: {{ external_conditions_updated_at|date:"d.m.Y H:i" }}{% endif %}
+</p>
+
+{% if external_conditions.points %}
+  <ul>
+    {% for item in external_conditions.points %}
+      <li>
+        <strong>{{ item.point.poi.name }}</strong>:
+        t={{ item.weather.temperature_c|default_if_none:"—" }}°C,
+        ветер={{ item.weather.wind_speed_ms|floatformat:1|default:"—" }} м/с
+        {% if item.place.opening_hours %} • часы: {{ item.place.opening_hours }}{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p style="opacity:.7;">Пока нет данных по условиям.</p>
+{% endif %}
 
 {% for b in day_blocks %}
 <h2>
@@ -73,8 +94,10 @@
 <ol>
     {% for p in b.points %}
     <li style="margin-bottom: 12px;">
-        <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч<br>
+        <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч
+        {% if p.note %} — <em>{{ p.note }}</em>{% endif %}<br>
         {{ p.poi.short_description }}<br>
+
         {% if p.note %}<em>Примечание: {{ p.note }}</em><br>{% endif %}
 
         <div class="no-print" style="margin-top: 6px;">
