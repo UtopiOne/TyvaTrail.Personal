@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django_bootstrap5',
+
     'tours.apps.ToursConfig',
 ]
 
@@ -137,4 +140,5 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-EXTERNAL_CONDITIONS_PROVIDER = os.getenv("EXTERNAL_CONDITIONS_PROVIDER", "stub")
+EXTERNAL_CONDITIONS_PROVIDER = os.getenv(
+    "EXTERNAL_CONDITIONS_PROVIDER", "stub")
