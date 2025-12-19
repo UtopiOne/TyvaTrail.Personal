@@ -1,43 +1,86 @@
-{% load django_bootstrap5 %}
-
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-
-{% bootstrap_messages %}
-
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {% load django_bootstrap5 %}
+
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+
+    {% bootstrap_messages %}
+
     <title>{% block title %}Tyva Trail{% endblock %}</title>
     {% block extra_head %}{% endblock %}
 </head>
-<body>
-<nav>
-    <a href="{% url 'home' %}">Главная</a>
-    | <a href="{% url 'poi_list' %}">Каталог</a>
-    {% if user.is_authenticated %}
-        | <a href="{% url 'profile' %}">Профиль</a>
-        | <a href="{% url 'my_routes' %}">Мои маршруты</a>
-        {% if user.is_staff %}
-            | <a href="{% url 'admin_stats' %}">Админ-статистика</a>
-        {% endif %}
-        | <form action="{% url 'logout' %}" method="post" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit"
-                    style="background:none;border:none;padding:0;margin:0;
-                           color:blue;text-decoration:underline;cursor:pointer;">
-                Выход
-            </button>
-          </form>
-    {% else %}
-        | <a href="{% url 'login' %}">Вход</a>
-        | <a href="{% url 'signup' %}">Регистрация</a>
-    {% endif %}
-</nav>
-<hr>
 
-{% block content %}{% endblock %}
+<body>
+
+    <header>
+        <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark">
+            <a class="navbar-brand" href="{% url 'home' %}">TyvaTrail</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'poi_list' %}">Каталог</a>
+                    </li>
+
+                    {% if user.is_authenticated %}
+
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin_stats' %}">Админ-статистика</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Профиль
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">Мой профиль</a></li>
+                            <li><a class="dropdown-item" href="{% url 'my_routes' %}">Мои маршруты</a></li>
+
+                            <div class="dropdown-divider"></div>
+
+                            <li>
+                                <form class="form-inline my-2 my-lg-0" action="{% url 'logout' %}" method="post"
+                                    style="display:inline;">
+                                    {% csrf_token %}
+                                    <button class="dropdown-item" type="submit">Выход</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Вход</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Регистрация</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 
 </body>
+
 </html>
