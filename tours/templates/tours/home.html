@@ -1,21 +1,17 @@
 {% extends "base.html" %}
-
 {% load django_bootstrap5 %}
-
-{% block title %}Главная{% endblock %}
-
+{% block title %}
+  Главная
+{% endblock title %}
 {% block content %}
-
-{% if not user.is_authenticated %}
-<p>Чтобы подобрать маршрут, войдите в систему.</p>
-{% else %}
-<h1>Подбор маршрута</h2>
-<form class="mw-50" method="post">
-    {% csrf_token %}
-    {% bootstrap_form form layout="horizontal" %}
-
-    {% bootstrap_button button_type="submit" button_class="btn-success" content="Подобрать маршрут" %}
-</form>
-{% endif %}
-
-{% endblock %}
+  {% if not user.is_authenticated %}
+    <p>Чтобы подобрать маршрут, войдите в систему.</p>
+  {% else %}
+    <h1>Подбор маршрута</h1>
+    <form class="mw-50" method="post">
+      {% csrf_token %}
+      {% bootstrap_form form layout="horizontal" %}
+      {% bootstrap_button button_type="submit" button_class="btn-success" content="Подобрать маршрут" %}
+    </form>
+  {% endif %}
+{% endblock content %}
