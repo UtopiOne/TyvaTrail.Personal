@@ -1,6 +1,5 @@
-<nav style="margin: 12px 0;">
-  <a href="{% url 'profile' %}">Настройки профиля</a> |
-  <a href="{% url 'my_routes' %}">Мои маршруты</a> |
-  <strong><a href="{% url 'history' %}">История</a></strong>
-</nav>
-<hr>
+<ul class="nav mb-3">
+  <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Настройки профиля</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'my_routes' %}">Мои маршруты</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'history' %}">История</a></li>
+</ul>

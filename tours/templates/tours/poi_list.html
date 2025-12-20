@@ -21,15 +21,14 @@
   <div class="col">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">{{ poi.name }}</h5>
+        <p class="h5 card-title">{{ poi.name }}</p>
         <p class="card-subtitle mb-2 text-muted">{{ poi.short_description }}</p>
         {% if poi.region %}
         <p class="card-text">Регион: {{ poi.region }}</p>
         {% endif %}
-        <p class="card-text">Сезон: {{ poi.get_season_display }} |
-        Сложность: {{ poi.get_physical_level_display }} |
-        Цены: {{ poi.get_price_level_display }}
-        {% if poi.base_cost %}| ~{{ poi.base_cost }} ₽{% endif %}
+        <p class="card-text">Сезон: {{ poi.get_season_display }}</p>
+        <p class="card-text">Сложность: {{ poi.get_physical_level_display }}</p>
+        <p class="card-text">Цены: {{ poi.get_price_level_display }}{% if poi.base_cost %} (~{{ poi.base_cost }} ₽){% endif %}</p>
         </p>
       </div>
 

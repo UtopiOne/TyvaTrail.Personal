@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+
+{% load django_bootstrap5 %}
+
 {% block title %}Профиль{% endblock %}
 
 {% block content %}
@@ -6,7 +9,7 @@
 {% include "tours/_cabinet_tabs.html" %}
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Сохранить</button>
+    {% bootstrap_form form layout="horizontal" %}
+    {% bootstrap_button button_class="btn-primary" button_type="submit" content="Сохранить"%}
 </form>
 {% endblock %}
