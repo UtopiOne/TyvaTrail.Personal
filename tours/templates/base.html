@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{% load django_bootstrap5 %}
+{% load i18n %}
 <html lang="ru">
 
 <head>
@@ -6,7 +8,6 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {% load django_bootstrap5 %}
 
     {% bootstrap_css %}
     {% bootstrap_javascript %}
@@ -20,7 +21,7 @@
 <body>
 
     <header>
-        <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark">
+        <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark p-3">
             <a class="navbar-brand" href="{% url 'home' %}">TyvaTrail</a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -37,22 +38,24 @@
 
                     {% if user.is_authenticated %}
 
-                    {% if user.is_staff %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'admin_stats' %}">Админ-статистика</a>
-                    </li>
-                    {% endif %}
+
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            Профиль
+                            {{ user.username }}
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
                             <li><a class="dropdown-item" href="{% url 'profile' %}">Мой профиль</a></li>
                             <li><a class="dropdown-item" href="{% url 'my_routes' %}">Мои маршруты</a></li>
 
                             <div class="dropdown-divider"></div>
+
+                            {% if user.is_staff %}
+                            <li><a class="dropdown-item" href="{% url 'admin_stats' %}">Админ-статистика</a></li>
+
+                            <div class="dropdown-divider"></div>
+                            {% endif %}
 
                             <li>
                                 <form class="form-inline my-2 my-lg-0" action="{% url 'logout' %}" method="post"
@@ -77,7 +80,7 @@
         </nav>
     </header>
 
-    <main>
+    <main class="m-3">
         {% block content %}{% endblock %}
     </main>
 

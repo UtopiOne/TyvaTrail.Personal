@@ -1,17 +1,21 @@
 {% extends "base.html" %}
+
+{% load django_bootstrap5 %}
+
 {% block title %}Главная{% endblock %}
 
 {% block content %}
-<h1>Tyva Trail</h1>
 
 {% if not user.is_authenticated %}
-  <p>Чтобы подобрать маршрут, войдите в систему.</p>
+<p>Чтобы подобрать маршрут, войдите в систему.</p>
 {% else %}
-  <h2>Подбор маршрута</h2>
-  <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Подобрать маршрут</button>
-  </form>
+<h1>Подбор маршрута</h2>
+<form class="mw-50" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout="horizontal" %}
+
+    {% bootstrap_button button_type="submit" button_class="btn-success" content="Подобрать маршрут" %}
+</form>
 {% endif %}
+
 {% endblock %}

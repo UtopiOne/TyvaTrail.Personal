@@ -1,50 +1,47 @@
 {% extends "base.html" %}
+
+{% load django_bootstrap5 %}
+
 {% block title %}Каталог объектов{% endblock %}
 
 {% block content %}
 <h1>Каталог объектов</h1>
 
 <form method="get">
-  {{ form.as_p }}
-  <button type="submit">Применить</button>
-  <a href="{% url 'poi_list' %}">Сбросить</a>
+  {% bootstrap_form form layout="horizontal" %}
+
+  {% bootstrap_button button_class="btn-primary" button_type="submit" content="Применить" %}
+  {% bootstrap_button button_class="btn-danger" button_type="reset" content="Сбросить" %}
 </form>
 
 <hr>
 
-<ul>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
   {% for poi in page_obj.object_list %}
-    <li style="margin-bottom: 12px;">
-      <a href="{% url 'poi_detail' poi.pk %}"><strong>{{ poi.name }}</strong></a><br>
-      {{ poi.short_description }}<br>
-      {% if poi.region %}Регион: {{ poi.region }}<br>{% endif %}
-      Сезон: {{ poi.get_season_display }} |
-      Сложность: {{ poi.get_physical_level_display }} |
-      Цены: {{ poi.get_price_level_display }}
-      {% if poi.base_cost %}| ~{{ poi.base_cost }} ₽{% endif %}
-    </li>
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">{{ poi.name }}</h5>
+        <p class="card-subtitle mb-2 text-muted">{{ poi.short_description }}</p>
+        {% if poi.region %}
+        <p class="card-text">Регион: {{ poi.region }}</p>
+        {% endif %}
+        <p class="card-text">Сезон: {{ poi.get_season_display }} |
+        Сложность: {{ poi.get_physical_level_display }} |
+        Цены: {{ poi.get_price_level_display }}
+        {% if poi.base_cost %}| ~{{ poi.base_cost }} ₽{% endif %}
+        </p>
+      </div>
+
+      <div class="card-footer">
+        <a class="btn btn-primary" href="{% url 'poi_detail' poi.pk %}">Перейти</a>
+      </div>
+    </div>
+  </div>
   {% empty %}
-    <li>Ничего не найдено.</li>
+  <p class="text-muted">Ничего не найдено :(</p>
   {% endfor %}
-</ul>
-
-<div>
-  {% if page_obj.has_previous %}
-    {% if base_qs %}
-      <a href="?{{ base_qs }}&page={{ page_obj.previous_page_number }}">Назад</a>
-    {% else %}
-      <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
-    {% endif %}
-  {% endif %}
-
-  Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
-
-  {% if page_obj.has_next %}
-    {% if base_qs %}
-      <a href="?{{ base_qs }}&page={{ page_obj.next_page_number }}">Вперёд</a>
-    {% else %}
-      <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
-    {% endif %}
-  {% endif %}
 </div>
+
+{% bootstrap_pagination page_obj %}
 {% endblock %}
