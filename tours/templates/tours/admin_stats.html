@@ -1,33 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Админ-статистика{% endblock %}
-
+{% load django_bootstrap5 %}
+{% block title %}
+  Админ-статистика
+{% endblock title %}
+{% block extra_head %}
+{% endblock extra_head %}
 {% block content %}
-<h1>Админ-статистика</h1>
-
-<ul>
-  <li>POI всего: <strong>{{ total_poi }}</strong></li>
-  <li>Маршрутов всего: <strong>{{ total_routes }}</strong></li>
-  <li>Отзывы всего: <strong>{{ total_reviews }}</strong></li>
-  <li>Маршрутов с доступом по ссылке: <strong>{{ shared_routes }}</strong></li>
-  <li>Маршрутов за 7 дней: <strong>{{ routes_7d }}</strong></li>
-  <li>Отзывов за 7 дней: <strong>{{ reviews_7d }}</strong></li>
-</ul>
-
-<h2>Топ POI по добавлениям в маршруты</h2>
-<ol>
-  {% for row in top_poi_by_usage %}
-    <li>{{ row.poi__name }} — {{ row.uses }}</li>
-  {% empty %}
-    <li>Пока нет данных.</li>
-  {% endfor %}
-</ol>
-
-<h2>Топ POI по рейтингу</h2>
-<ol>
-  {% for p in top_poi_by_rating %}
-    <li>{{ p.name }} — {{ p.avg_rating|floatformat:1 }}/5</li>
-  {% empty %}
-    <li>Пока нет данных.</li>
-  {% endfor %}
-</ol>
-{% endblock %}
+  <h1>Админ-статистика</h1>
+  <ul class="list-group">
+    <li class="list-group-item">
+      POI всего: <strong>{{ total_poi }}</strong>
+    </li>
+    <li class="list-group-item">
+      Маршрутов всего: <strong>{{ total_routes }}</strong>
+    </li>
+    <li class="list-group-item">
+      Отзывы всего: <strong>{{ total_reviews }}</strong>
+    </li>
+    <li class="list-group-item">
+      Маршрутов с доступом по ссылке: <strong>{{ shared_routes }}</strong>
+    </li>
+    <li class="list-group-item">
+      Маршрутов за 7 дней: <strong>{{ routes_7d }}</strong>
+    </li>
+    <li class="list-group-item">
+      Отзывов за 7 дней: <strong>{{ reviews_7d }}</strong>
+    </li>
+  </ul>
+  <h2>Топ POI по добавлениям в маршруты</h2>
+  <ol class="list-group list-group-numbered">
+    {% for row in top_poi_by_usage %}
+      <li class="list-group-item">{{ row.poi__name }} — {{ row.uses }}</li>
+    {% empty %}
+      <li class="text-muted">Пока нет данных.</li>
+    {% endfor %}
+  </ol>
+  <h2>Топ POI по рейтингу</h2>
+  <ol class="list-group list-group-numbered">
+    {% for p in top_poi_by_rating %}
+      <li class="list-group-item">{{ p.name }} — {{ p.avg_rating|floatformat:1 }}/5</li>
+    {% empty %}
+      <li class="text-muted">Пока нет данных.</li>
+    {% endfor %}
+  </ol>
+{% endblock content %}
