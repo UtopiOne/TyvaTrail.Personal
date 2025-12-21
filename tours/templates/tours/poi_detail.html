@@ -1,86 +1,115 @@
 {% extends "base.html" %}
-{% block title %}{{ poi.name }}{% endblock %}
+{% load django_bootstrap5 %}
+{% block title %}
+  {{ poi.name }}
+{% endblock title %}
+{% block extra_head %}
+  <script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
+  <script>
+      const mapPoint = JSON.parse('{{ map_point_json|escapejs }}');
 
+      function init() {
+        const map = new ymaps.Map('map', {
+          center: [mapPoint.lat, mapPoint.lng],
+          zoom: 10,
+          controls: ['zoomControl']
+        });
+
+        const placemark = new ymaps.Placemark([mapPoint.lat, mapPoint.lng], {
+          balloonContentBody: mapPoint.name
+        });
+        map.geoObjects.add(placemark);
+      }
+
+      ymaps.ready(init);
+  </script>
+{% endblock extra_head %}
 {% block content %}
-<h1>{{ poi.name }}</h1>
-
-<p>{{ poi.short_description }}</p>
-
-{% if poi.detailed_description %}
-<p>{{ poi.detailed_description }}</p>
-{% endif %}
-
-<p>
-    Рейтинг: {% if poi.avg_rating %}{{ poi.avg_rating|floatformat:1 }}/5{% else %}—{% endif %}<br>
-    Тип: {{ poi.get_type_display }}<br>
-    {% if poi.region %}Регион: {{ poi.region }}<br>{% endif %}
-    Сезон: {{ poi.get_season_display }}<br>
-    Сложность: {{ poi.get_physical_level_display }}<br>
-    Цены: {{ poi.get_price_level_display }}
-    {% if poi.base_cost %} (~{{ poi.base_cost }} ₽){% endif %}
-</p>
-
-{% if poi.address %}<p>Адрес: {{ poi.address }}</p>{% endif %}
-{% if poi.access_info %}<p>Как добраться: {{ poi.access_info }}</p>{% endif %}
-
-{% if map_point_json %}
-<div id="map" style="height: 360px; margin: 16px 0;"></div>
-
-<script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
-<script>
-    const mapPoint = JSON.parse('{{ map_point_json|escapejs }}');
-
-    function init() {
-      const map = new ymaps.Map('map', {
-        center: [mapPoint.lat, mapPoint.lng],
-        zoom: 10,
-        controls: ['zoomControl']
-      });
-
-      const placemark = new ymaps.Placemark([mapPoint.lat, mapPoint.lng], {
-        balloonContentBody: mapPoint.name
-      });
-      map.geoObjects.add(placemark);
-    }
-
-    ymaps.ready(init);
-</script>
-{% else %}
-<p><em>Координаты не указаны — карта недоступна.</em></p>
-{% endif %}
-
-<h2>Фотографии</h2>
-<ul>
+  <div class="d-flex justify-content-between flex-column flex-lg-row">
+    <div class="m-8">
+      <h1>{{ poi.name }}</h1>
+      <p>{{ poi.short_description }}</p>
+      {% if poi.detailed_description %}<p>{{ poi.detailed_description }}</p>{% endif %}
+      <p>
+        Рейтинг:
+        {% if poi.avg_rating %}
+          {{ poi.avg_rating|floatformat:1 }}/5
+        {% else %}
+          —
+        {% endif %}
+      </p>
+      <p>Тип: {{ poi.get_type_display }}</p>
+      {% if poi.region %}<p>Регион: {{ poi.region }}</p>{% endif %}
+      <p>Сезон: {{ poi.get_season_display }}</p>
+      <p>Сложность: {{ poi.get_physical_level_display }}</p>
+      <p>
+        Цены: {{ poi.get_price_level_display }}
+        {% if poi.base_cost %}(~{{ poi.base_cost }} ₽){% endif %}
+      </p>
+      {% if poi.address %}<p>Адрес: {{ poi.address }}</p>{% endif %}
+      {% if poi.access_info %}<p>Как добраться: {{ poi.access_info }}</p>{% endif %}
+    </div>
+    <div class="flex-shrink-0 ml-8">
+      {% if map_point_json %}
+        <div id="map"
+             style="height: 640px;
+                    min-width: 320px;
+                    max-width: 50vw;
+                    margin: 16px"></div>
+      {% else %}
+        <p>
+          <em>Координаты не указаны — карта недоступна.</em>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+  <h2>Фотографии</h2>
+  <ul>
     {% for ph in photos %}
-    <li><a href="{{ ph.image_url }}" target="_blank">{{ ph.caption|default:"Фото" }}</a></li>
+      <li>
+        <a href="{{ ph.image_url }}" target="_blank">{{ ph.caption|default:"Фото" }}</a>
+      </li>
     {% empty %}
-    <li>Фото пока нет.</li>
+      <li>Фото пока нет.</li>
     {% endfor %}
-</ul>
-
-<h2>{% if user_review %}Редактировать отзыв{% else %}Оставить отзыв{% endif %}</h2>
-
-{% if user.is_authenticated %}
-  <form method="post">
-    {% csrf_token %}
-    {{ review_form.as_p }}
-    <button type="submit">Отправить</button>
-  </form>
-{% else %}
-  <p>Чтобы оставить отзыв, нужно <a href="{% url 'login' %}">войти</a>.</p>
-{% endif %}
-
-<h2>Отзывы</h2>
-<ul>
+  </ul>
+  <h2>
+    {% if user_review %}
+      Редактировать отзыв
+    {% else %}
+      Оставить отзыв
+    {% endif %}
+  </h2>
+  {% if user.is_authenticated %}
+    <form method="post">
+      {% csrf_token %}
+      {% bootstrap_form review_form layout="horizontal" %}
+      {% bootstrap_button button_class="btn-success" button_type="submit" content="Отправить" %}
+    </form>
+  {% else %}
+    <p>
+      Чтобы оставить отзыв, нужно <a href="{% url 'login' %}">войти</a>.
+    </p>
+  {% endif %}
+  <h2>Отзывы</h2>
+  <ul class="list-unstyled">
     {% for r in reviews %}
-    <li>
-        <strong>{{ r.user.username }}</strong> — {{ r.rating }}/5 ({{ r.created_at|date:"d.m.Y" }})<br>
-        {{ r.text|default:"(без текста)" }}
-    </li>
+      <li class="card">
+        <div class="card-body">
+          <p class="h5 card-title">
+            <strong>{{ r.user.username }}</strong> — {{ r.rating }}/5
+          </p>
+          {{ r.text|default:"(без текста)" }}
+        </div>
+        <div class="card-footer">
+          <p class="text-muted">Выложено {{ r.created_at|date:"d.m.Y" }}</p>
+        </div>
+      </li>
     {% empty %}
-    <li>Отзывов пока нет.</li>
+      <li>Отзывов пока нет.</li>
     {% endfor %}
-</ul>
-
-<p><a href="{% url 'poi_list' %}">← Назад в каталог</a></p>
-{% endblock %}
+  </ul>
+  <p>
+    <a class="btn btn-primary" href="{% url 'poi_list' %}">← Назад в каталог</a>
+  </p>
+{% endblock content %}
