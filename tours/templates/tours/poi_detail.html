@@ -1,30 +1,44 @@
 {% extends "base.html" %}
 {% load django_bootstrap5 %}
 {% block title %}
-  {{ poi.name }}
+{{ poi.name }}
 {% endblock title %}
 {% block extra_head %}
-  <script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
-  <script>
-      const mapPoint = JSON.parse('{{ map_point_json|escapejs }}');
+<script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
+<script>
+  const mapPoint = JSON.parse('{{ map_point_json|escapejs }}');
 
-      function init() {
-        const map = new ymaps.Map('map', {
-          center: [mapPoint.lat, mapPoint.lng],
-          zoom: 10,
-          controls: ['zoomControl']
-        });
+  function init() {
+    const map = new ymaps.Map('map', {
+      center: [mapPoint.lat, mapPoint.lng],
+      zoom: 10,
+      controls: ['zoomControl']
+    });
 
-        const placemark = new ymaps.Placemark([mapPoint.lat, mapPoint.lng], {
-          balloonContentBody: mapPoint.name
-        });
-        map.geoObjects.add(placemark);
-      }
+    const placemark = new ymaps.Placemark([mapPoint.lat, mapPoint.lng], {
+      balloonContentBody: mapPoint.name
+    });
+    map.geoObjects.add(placemark);
+  }
 
-      ymaps.ready(init);
-  </script>
+  ymaps.ready(init);
+</script>
 {% endblock extra_head %}
 {% block content %}
+<style>
+  #map {
+    width: 450px;
+    height: 500px;
+  }
+
+  @media (max-width: 990px) {
+    #map {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="m-4">
   <div class="d-flex justify-content-between flex-column flex-lg-row">
     <div class="m-8">
       <h1>{{ poi.name }}</h1>
@@ -33,9 +47,9 @@
       <p>
         Рейтинг:
         {% if poi.avg_rating %}
-          {{ poi.avg_rating|floatformat:1 }}/5
+        {{ poi.avg_rating|floatformat:1 }}/5
         {% else %}
-          —
+        —
         {% endif %}
       </p>
       <p>Тип: {{ poi.get_type_display }}</p>
@@ -51,65 +65,62 @@
     </div>
     <div class="flex-shrink-0 ml-8">
       {% if map_point_json %}
-        <div id="map"
-             style="height: 640px;
-                    min-width: 320px;
-                    max-width: 50vw;
-                    margin: 16px"></div>
+      <div id="map"></div>
       {% else %}
-        <p>
-          <em>Координаты не указаны — карта недоступна.</em>
-        </p>
+      <p>
+        <em>Координаты не указаны — карта недоступна.</em>
+      </p>
       {% endif %}
     </div>
   </div>
   <h2>Фотографии</h2>
   <ul>
     {% for ph in photos %}
-      <li>
-        <a href="{{ ph.image_url }}" target="_blank">{{ ph.caption|default:"Фото" }}</a>
-      </li>
+    <li>
+      <a href="{{ ph.image_url }}" target="_blank">{{ ph.caption|default:"Фото" }}</a>
+    </li>
     {% empty %}
-      <li>Фото пока нет.</li>
+    <li>Фото пока нет.</li>
     {% endfor %}
   </ul>
   <h2>
     {% if user_review %}
-      Редактировать отзыв
+    Редактировать отзыв
     {% else %}
-      Оставить отзыв
+    Оставить отзыв
     {% endif %}
   </h2>
   {% if user.is_authenticated %}
-    <form method="post">
-      {% csrf_token %}
-      {% bootstrap_form review_form layout="horizontal" %}
-      {% bootstrap_button button_class="btn-success" button_type="submit" content="Отправить" %}
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {% bootstrap_form review_form layout="horizontal" %}
+    {% bootstrap_button button_class="btn-success" button_type="submit" content="Отправить" %}
+  </form>
   {% else %}
-    <p>
-      Чтобы оставить отзыв, нужно <a href="{% url 'login' %}">войти</a>.
-    </p>
+  <p>
+    Чтобы оставить отзыв, нужно <a href="{% url 'login' %}">войти</a>.
+  </p>
   {% endif %}
   <h2>Отзывы</h2>
   <ul class="list-unstyled">
     {% for r in reviews %}
-      <li class="card">
-        <div class="card-body">
-          <p class="h5 card-title">
-            <strong>{{ r.user.username }}</strong> — {{ r.rating }}/5
-          </p>
-          {{ r.text|default:"(без текста)" }}
-        </div>
-        <div class="card-footer">
-          <p class="text-muted">Выложено {{ r.created_at|date:"d.m.Y" }}</p>
-        </div>
-      </li>
+    <li class="card">
+      <div class="card-body">
+        <p class="h5 card-title">
+          <strong>{{ r.user.username }}</strong> — {{ r.rating }}/5
+        </p>
+        {{ r.text|default:"(без текста)" }}
+      </div>
+      <div class="card-footer">
+        <p class="text-muted">Выложено {{ r.created_at|date:"d.m.Y" }}</p>
+      </div>
+    </li>
     {% empty %}
-      <li>Отзывов пока нет.</li>
+    <li>Отзывов пока нет.</li>
     {% endfor %}
   </ul>
   <p>
     <a class="btn btn-primary" href="{% url 'poi_list' %}">← Назад в каталог</a>
   </p>
+</div>
 {% endblock content %}

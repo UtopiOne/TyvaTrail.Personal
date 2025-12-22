@@ -86,7 +86,7 @@
     </h1>
     <p class="text-start">Построй путешествие своей мечты!</p>
     {% if not user.is_authenticated %}
-      <p>Чтобы подобрать маршрут, войдите в систему.</p>
+      <p class="text-muted">Чтобы подобрать маршрут, войдите в систему.</p>
     {% else %}
       <h2 class="mb-4">Подбор маршрута</h2>
       <form class="mw-50" method="post">

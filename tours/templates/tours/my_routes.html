@@ -1,19 +1,21 @@
 {% extends "base.html" %}
 {% block title %}
-  Мои маршруты
+Мои маршруты
 {% endblock title %}
 {% block content %}
+<div class="m-4">
   <h1>Мои маршруты</h1>
   {% include "tours/_cabinet_tabs.html" %}
   <ul class="list-group">
     {% for route in routes %}
-      <li class="list-group-item list-group-item-action">
-        <a href="{% url 'route_detail' route.pk %}">
-          {{ route.name }} — {{ route.days_count }} дн., создан {{ route.created_at|date:"d.m.Y H:i" }}
-        </a>
-      </li>
+    <li class="list-group-item list-group-item-action">
+      <a href="{% url 'route_detail' route.pk %}">
+        {{ route.name }} — {{ route.days_count }} дн., создан {{ route.created_at|date:"d.m.Y H:i" }}
+      </a>
+    </li>
     {% empty %}
-      <li class="text-muted">Пока маршрутов нет.</li>
+    <li class="text-muted">Пока маршрутов нет.</li>
     {% endfor %}
   </ul>
+</div>
 {% endblock content %}

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load django_bootstrap5 %}
 {% block title %}
-    Вход
+Вход
 {% endblock title %}
 {% block content %}
+<div class="m-4">
     <h1>Вход</h1>
     <form method="post">
         {% csrf_token %}
@@ -15,4 +16,5 @@
         Нет аккаунта?
         <a href="{% url 'signup' %}">Зарегистрироваться</a>
     </p>
+</div>
 {% endblock content %}

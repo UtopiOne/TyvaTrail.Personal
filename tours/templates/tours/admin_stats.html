@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% load django_bootstrap5 %}
 {% block title %}
-  Админ-статистика
+Админ-статистика
 {% endblock title %}
 {% block extra_head %}
 {% endblock extra_head %}
 {% block content %}
-  <h1>Админ-статистика</h1>
+<div class="m-4">
+  <h1 class="mb-2">Админ-статистика</h1>
   <ul class="list-group">
     <li class="list-group-item">
       POI всего: <strong>{{ total_poi }}</strong>
@@ -27,20 +28,21 @@
       Отзывов за 7 дней: <strong>{{ reviews_7d }}</strong>
     </li>
   </ul>
-  <h2>Топ POI по добавлениям в маршруты</h2>
+  <h2 class="mt-4 mb-2">Топ POI по добавлениям в маршруты</h2>
   <ol class="list-group list-group-numbered">
     {% for row in top_poi_by_usage %}
-      <li class="list-group-item">{{ row.poi__name }} — {{ row.uses }}</li>
+    <li class="list-group-item">{{ row.poi__name }} — {{ row.uses }}</li>
     {% empty %}
-      <li class="text-muted">Пока нет данных.</li>
+    <li class="text-muted">Пока нет данных.</li>
     {% endfor %}
   </ol>
-  <h2>Топ POI по рейтингу</h2>
+  <h2 class="mt-4 mb-2">Топ POI по рейтингу</h2>
   <ol class="list-group list-group-numbered">
     {% for p in top_poi_by_rating %}
-      <li class="list-group-item">{{ p.name }} — {{ p.avg_rating|floatformat:1 }}/5</li>
+    <li class="list-group-item">{{ p.name }} — {{ p.avg_rating|floatformat:1 }}/5</li>
     {% empty %}
-      <li class="text-muted">Пока нет данных.</li>
+    <li class="text-muted">Пока нет данных.</li>
     {% endfor %}
   </ol>
+</div>
 {% endblock content %}

@@ -5,11 +5,13 @@
 {% block title %}Профиль{% endblock %}
 
 {% block content %}
-<h1>Профиль</h1>
-{% include "tours/_cabinet_tabs.html" %}
-<form method="post">
-  {% csrf_token %}
-  {% bootstrap_form form layout="horizontal" %}
-  {% bootstrap_button button_class="btn-primary" button_type="submit" content="Сохранить"%}
-</form>
+<div class="m-4">
+  <h1>Профиль</h1>
+  {% include "tours/_cabinet_tabs.html" %}
+  <form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout="horizontal" %}
+    {% bootstrap_button button_class="btn-primary" button_type="submit" content="Сохранить"%}
+  </form>
+</div>
 {% endblock %}

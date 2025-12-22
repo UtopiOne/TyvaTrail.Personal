@@ -2,8 +2,8 @@
 {% load django_bootstrap5 %}
 {% load timefmt %}
 {% block extra_head %}
-  <script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
-  <script>
+<script src="https://api-maps.yandex.ru/2.1/?apikey={{ yandex_maps_api_key }}&lang=ru_RU"></script>
+<script>
   const pointsData = JSON.parse('{{ map_points_json|default:"[]"|escapejs }}');
 
   function init() {
@@ -35,11 +35,11 @@
   }
 
   ymaps.ready(init);
-  </script>
+</script>
 {% endblock extra_head %}
 {% block title %}Маршрут {{ route.name }}{% endblock %}
 {% block content %}
-  <style>
+<style>
   @media print {
     .no-print {
       display: none !important;
@@ -47,11 +47,17 @@
   }
 
   #map {
-    min-width: 320px;
-    max-width: 50vw;
-    margin: 16px;
+    width: 45%;
   }
-  </style>
+
+  @media (max-width: 990px) {
+    #map {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="m-4">
   <h1>{{ route.name }}</h1>
   <div class="d-flex gap-8 justify-content-between flex-column flex-lg-row">
     <div class="m-8">
@@ -63,17 +69,17 @@
       <p>
         Ориентировочная стоимость:
         {% if route.total_cost %}
-          {{ route.total_cost }} ₽
+        {{ route.total_cost }} ₽
         {% else %}
-          —
+        —
         {% endif %}
       </p>
       {% if logistics_total_km %}
-        <p>В пути (оценка): ~{{ logistics_total_km|floatformat:1 }} км, ~{{ logistics_total_minutes|minutes_human }}</p>
+      <p>В пути (оценка): ~{{ logistics_total_km|floatformat:1 }} км, ~{{ logistics_total_minutes|minutes_human }}</p>
       {% endif %}
       {% if route.equipment %}
-        <h2>Экипировка</h2>
-        <p style="white-space: pre-line;">{{ route.equipment }}</p>
+      <h2>Экипировка</h2>
+      <p style="white-space: pre-line;">{{ route.equipment }}</p>
       {% endif %}
     </div>
     <div id="map"></div>
@@ -84,100 +90,91 @@
     {% if external_conditions_updated_at %}• Обновлено: {{ external_conditions_updated_at|date:"d.m.Y H:i" }}{% endif %}
   </p>
   {% if external_conditions.points %}
-    <ul>
-      {% for item in external_conditions.points %}
-        <li>
-          <strong>{{ item.point.poi.name }}</strong>:
-          t={{ item.weather.temperature_c|default_if_none:"—" }}°C,
-          ветер={{ item.weather.wind_speed_ms|floatformat:1|default:"—" }} м/с
-          {% if item.place.opening_hours %}• часы: {{ item.place.opening_hours }}{% endif %}
-        </li>
-      {% endfor %}
-    </ul>
+  <ul>
+    {% for item in external_conditions.points %}
+    <li>
+      <strong>{{ item.point.poi.name }}</strong>:
+      t={{ item.weather.temperature_c|default_if_none:"—" }}°C,
+      ветер={{ item.weather.wind_speed_ms|floatformat:1|default:"—" }} м/с
+      {% if item.place.opening_hours %}• часы: {{ item.place.opening_hours }}{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
   {% else %}
-    <p class="text-muted">Пока нет данных по условиям.</p>
+  <p class="text-muted">Пока нет данных по условиям.</p>
   {% endif %}
   {% for b in day_blocks %}
-    <h2>
-      День {{ b.day }}
-      {% if b.distance_km %}— ~{{ b.distance_km|floatformat:1 }} км, ~{{ b.time_minutes|minutes_human }} в пути{% endif %}
-    </h2>
-    {% if b.points %}
-      <ol>
-        {% for p in b.points %}
-          <li class="mb-8">
-            <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч
-            {% if p.note %}— <em>{{ p.note }}</em>{% endif %}
-            <br>
-            {{ p.poi.short_description }}
-            <br>
-            {% if p.note %}
-              <em>Примечание: {{ p.note }}</em>
-              <br>
-            {% endif %}
-            <div class="d-flex justify-content-start mt-8 no-print" style="gap: 8px;">
-              <form method="post" action="{% url 'route_point_move_up' route.pk p.pk %}">
-                {% csrf_token %}
-                {% bootstrap_button button_type="submit" content="&uarr;" %}
-              </form>
-              <form method="post"
-                    action="{% url 'route_point_move_down' route.pk p.pk %}">
-                {% csrf_token %}
-                {% bootstrap_button button_type="submit" content="↓" %}
-              </form>
-              <form method="post"
-                    action="{% url 'route_point_delete' route.pk p.pk %}"
-                    onsubmit="return confirm('Удалить точку из маршрута?');">
-                {% csrf_token %}
-                {% bootstrap_button button_type="submit" content="Удалить" button_class="btn-danger" %}
-              </form>
-            </div>
-          </li>
-        {% endfor %}
-      </ol>
-    {% else %}
-      <p>Точек на этот день нет.</p>
-    {% endif %}
+  <h2>
+    День {{ b.day }}
+    {% if b.distance_km %}— ~{{ b.distance_km|floatformat:1 }} км, ~{{ b.time_minutes|minutes_human }} в пути{% endif %}
+  </h2>
+  {% if b.points %}
+  <ol>
+    {% for p in b.points %}
+    <li class="mb-8">
+      <strong>{{ p.poi.name }}</strong> — {{ p.visit_time_estimate }} ч
+      {% if p.note %}— <em>{{ p.note }}</em>{% endif %}
+      <br>
+      {{ p.poi.short_description }}
+      <br>
+      {% if p.note %}
+      <em>Примечание: {{ p.note }}</em>
+      <br>
+      {% endif %}
+      <div class="d-flex justify-content-start mt-8 no-print" style="gap: 8px;">
+        <form method="post" action="{% url 'route_point_move_up' route.pk p.pk %}">
+          {% csrf_token %}
+          {% bootstrap_button button_type="submit" content="&uarr;" %}
+        </form>
+        <form method="post" action="{% url 'route_point_move_down' route.pk p.pk %}">
+          {% csrf_token %}
+          {% bootstrap_button button_type="submit" content="↓" %}
+        </form>
+        <form method="post" action="{% url 'route_point_delete' route.pk p.pk %}"
+          onsubmit="return confirm('Удалить точку из маршрута?');">
+          {% csrf_token %}
+          {% bootstrap_button button_type="submit" content="Удалить" button_class="btn-danger" %}
+        </form>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p>Точек на этот день нет.</p>
+  {% endif %}
   {% empty %}
-    <p>В этом маршруте пока нет точек.</p>
+  <p>В этом маршруте пока нет точек.</p>
   {% endfor %}
   <h2 class="no-print">Добавить точку</h2>
-  <form class="no-print"
-        method="post"
-        action="{% url 'route_point_add' route.pk %}">
+  <form class="no-print" method="post" action="{% url 'route_point_add' route.pk %}">
     {% csrf_token %}
     {% bootstrap_form add_point_form layout="horizontal" %}
     {% bootstrap_button button_class="btn-success" button_type="submit" content="Добавить в маршрут" %}
   </form>
-  <form class="no-print"
-        method="post"
-        action="{% url 'route_optimize' route.pk %}"
-        style="margin-top: 16px">
+  <form class="no-print" method="post" action="{% url 'route_optimize' route.pk %}" style="margin-top: 16px">
     {% csrf_token %}
     {% bootstrap_button button_class="btn-secondary" button_type="submit" content="Оптимизировать порядок точек" %}
   </form>
   <section>
     <h2>Доступ по ссылке</h2>
-    <form class="no-print"
-          method="post"
-          action="{% url 'route_share_toggle' route.pk %}">
+    <form class="no-print" method="post" action="{% url 'route_share_toggle' route.pk %}">
       {% csrf_token %}
       <button class="btn btn-primary" type="submit">
         {% if route.is_shared %}
-          Отключить доступ по ссылке
+        Отключить доступ по ссылке
         {% else %}
-          Включить доступ по ссылке
+        Включить доступ по ссылке
         {% endif %}
       </button>
     </form>
     {% if share_url %}
-      <div class="no-print">
-        <div>Ссылка:</div>
-        <button class="btn btn-primary"
-                type="button"
-                onclick="navigator.clipboard.writeText('{{ share_url }}')">Копировать</button>
-        <a id="shareLink" href="{{ share_url }}" target="_blank">{{ share_url }}</a>
-      </div>
+    <div class="no-print">
+      <div>Ссылка:</div>
+      <button class="btn btn-primary" type="button"
+        onclick="navigator.clipboard.writeText('{{ share_url }}')">Копировать</button>
+      <a id="shareLink" href="{{ share_url }}" target="_blank">{{ share_url }}</a>
+    </div>
     {% endif %}
   </section>
+</div>
 {% endblock %}

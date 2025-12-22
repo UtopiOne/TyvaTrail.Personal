@@ -1,30 +1,32 @@
 {% extends "base.html" %}
 {% block title %}
-  История
+История
 {% endblock title %}
 {% block content %}
+<div class="m-4">
   <h1>История</h1>
   {% include "tours/_cabinet_tabs.html" %}
   <ul class="list-group">
     {% for it in items %}
-      <li class="list-group-item">
-        <strong>{{ it.created_at|date:"d.m.Y H:i" }}</strong> —
-        {{ it.days_count }} дн.,
-        бюджет:
-        {% if it.max_budget %}
-          до {{ it.max_budget }} ₽
-        {% else %}
-          —
-        {% endif %}
-        {% if it.route %}
-          — <a href="{% url 'route_detail' it.route.pk %}">Открыть маршрут</a>
-          | <a href="{% url 'route_print' it.route.pk %}" target="_blank">Печать/PDF</a>
-        {% else %}
-          — (маршрут удалён)
-        {% endif %}
-      </li>
+    <li class="list-group-item">
+      <strong>{{ it.created_at|date:"d.m.Y H:i" }}</strong> —
+      {{ it.days_count }} дн.,
+      бюджет:
+      {% if it.max_budget %}
+      до {{ it.max_budget }} ₽
+      {% else %}
+      —
+      {% endif %}
+      {% if it.route %}
+      — <a href="{% url 'route_detail' it.route.pk %}">Открыть маршрут</a>
+      | <a href="{% url 'route_print' it.route.pk %}" target="_blank">Печать/PDF</a>
+      {% else %}
+      — (маршрут удалён)
+      {% endif %}
+    </li>
     {% empty %}
-      <li class="text-muted">История пока пустая. Сформируй маршрут на главной.</li>
+    <li class="text-muted">История пока пустая. Сформируй маршрут на главной.</li>
     {% endfor %}
   </ul>
+</div>
 {% endblock content %}
