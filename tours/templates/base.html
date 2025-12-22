@@ -2,89 +2,80 @@
 {% load django_bootstrap5 %}
 {% load i18n %}
 <html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    <meta name="description"
-          content="Tyva Trail - Откройте удивительные маршруты и достопримечательности.">
-    <meta name="keywords"
-          content="Tyva Trail, маршруты, достопримечательности, путешествия, приключения">
-    {% bootstrap_messages %}
-    <title>
-      {% block title %}
-        Tyva Trail
-      {% endblock title %}
-    </title>
-    {% block extra_head %}
-    {% endblock extra_head %}
-  </head>
-  <body>
-    <header>
-      <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark p-3">
-        <a class="navbar-brand" href="{% url 'home' %}">TyvaTrail</a>
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'poi_list' %}">Каталог</a>
-            </li>
-            {% if user.is_authenticated %}
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle"
-                   href="#"
-                   id="profile-dropdown"
-                   role="button"
-                   data-bs-toggle="dropdown"
-                   aria-expanded="false">{{ user.username }}</a>
-                <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
-                  <li>
-                    <a class="dropdown-item" href="{% url 'profile' %}">Мой профиль</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="{% url 'my_routes' %}">Мои маршруты</a>
-                  </li>
-                  <div class="dropdown-divider"></div>
-                  {% if user.is_staff %}
-                    <li>
-                      <a class="dropdown-item" href="{% url 'admin_stats' %}">Админ-статистика</a>
-                    </li>
-                    <div class="dropdown-divider"></div>
-                  {% endif %}
-                  <li>
-                    <form class="form-inline my-2 my-lg-0"
-                          action="{% url 'logout' %}"
-                          method="post">
-                      {% csrf_token %}
-                      <button class="dropdown-item" type="submit">Выход</button>
-                    </form>
-                  </li>
-                </ul>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+  <meta name="description" content="Tyva Trail - Откройте удивительные маршруты и достопримечательности.">
+  <meta name="keywords" content="Tyva Trail, маршруты, достопримечательности, путешествия, приключения">
+  {% bootstrap_messages %}
+  <title>
+    {% block title %}
+    Tyva Trail
+    {% endblock title %}
+  </title>
+  {% block extra_head %}
+  {% endblock extra_head %}
+</head>
+
+<body>
+  <header>
+
+    <nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark p-3">
+      <a class="navbar-brand" href="{% url 'home' %}">TyvaTrail</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'poi_list' %}">Каталог</a>
+          </li>
+          {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="profile-dropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">{{ user.username }}</a>
+            <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
+              <li>
+                <a class="dropdown-item" href="{% url 'profile' %}">Мой профиль</a>
               </li>
-            {% else %}
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'login' %}">Вход</a>
+              <li>
+                <a class="dropdown-item" href="{% url 'my_routes' %}">Мои маршруты</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'signup' %}">Регистрация</a>
+              <div class="dropdown-divider"></div>
+              {% if user.is_staff %}
+              <li>
+                <a class="dropdown-item" href="{% url 'admin_stats' %}">Админ-статистика</a>
               </li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
-    </header>
-    <main class="m-3">
-      {% block content %}
-      {% endblock content %}
-    </main>
-  </body>
+              <div class="dropdown-divider"></div>
+              {% endif %}
+              <li>
+                <form class="form-inline my-2 my-lg-0" action="{% url 'logout' %}" method="post">
+                  {% csrf_token %}
+                  <button class="dropdown-item" type="submit">Выход</button>
+                </form>
+              </li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Вход</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'signup' %}">Регистрация</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    {% block content %}
+    {% endblock content %}
+  </main>
+</body>
+
 </html>

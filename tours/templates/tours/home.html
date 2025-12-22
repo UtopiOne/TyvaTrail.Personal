@@ -1,17 +1,99 @@
 {% extends "base.html" %}
+{% load static %}
 {% load django_bootstrap5 %}
 {% block title %}
   Главная
 {% endblock title %}
 {% block content %}
-  {% if not user.is_authenticated %}
-    <p>Чтобы подобрать маршрут, войдите в систему.</p>
-  {% else %}
-    <h1>Подбор маршрута</h1>
-    <form class="mw-50" method="post">
-      {% csrf_token %}
-      {% bootstrap_form form layout="horizontal" %}
-      {% bootstrap_button button_type="submit" button_class="btn-success" content="Подобрать маршрут" %}
-    </form>
-  {% endif %}
+  <div id="carousel" class="carousel slide carousel-fade h-25">
+    <div class="carousel-indicators">
+      <button type="button"
+              data-bs-target="#carousel"
+              data-bs-slide-to="0"
+              class="active"
+              aria-current="true"
+              aria-label="Slide 1"></button>
+      <button type="button"
+              data-bs-target="#carousel"
+              data-bs-slide-to="1"
+              aria-label="Slide 2"></button>
+      <button type="button"
+              data-bs-target="#carousel"
+              data-bs-slide-to="2"
+              aria-label="Slide 3"></button>
+      <button type="button"
+              data-bs-target="#carousel"
+              data-bs-slide-to="3"
+              aria-label="Slide 4"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="{% static 'images/homepage_1.jpg' %}"
+             alt="Красивый пейзаж Тувы"
+             class="d-block w-100">
+        <div class="carousel-caption d-none d-md-block bg-dark p-2 bg-opacity-75 rounded">
+          <h2>Откройте для себя Республику Тыва</h2>
+          <p>Место, где тишина гор сильнее слов.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="{% static 'images/homepage_2.jpg' %}"
+             alt="Красивый пейзаж Тувы"
+             class="img-fluid d-block w-100">
+        <div class="carousel-caption d-none d-md-block bg-dark p-2 bg-opacity-75 rounded">
+          <h2>Путешествие к истокам силы, природы и древних традиций.</h2>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="{% static 'images/homepage_3.jpg' %}"
+             alt="Красивый пейзаж Тувы"
+             class="img-fluid d-block w-100">
+        <div class="carousel-caption d-none d-md-block bg-dark p-2 bg-opacity-75 rounded">
+          <h2>Туры в Тыву</h2>
+          <p>Шаманский дух встречается с первозданной природой.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="{% static 'images/homepage_4.jpg' %}"
+             alt="Красивый пейзаж Тувы"
+             class="img-fluid d-block w-100">
+        <div class="carousel-caption d-none d-md-block bg-dark p-2 bg-opacity-75 rounded">
+          <h2>Тыва ждёт</h2>
+          <p>Отключитесь от мира и почувствуйте настоящую свободу.</p>
+        </div>
+      </div>
+      <button class="carousel-control-prev"
+              type="button"
+              data-bs-target="#carousel"
+              data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next"
+              type="button"
+              data-bs-target="#carousel"
+              data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </div>
+  <div class="m-4">
+    <h1 class="text-start">
+      Добро пожаловать на
+      <br>
+      TyvaTrail
+    </h1>
+    <p class="text-start">Построй путешествие своей мечты!</p>
+    {% if not user.is_authenticated %}
+      <p>Чтобы подобрать маршрут, войдите в систему.</p>
+    {% else %}
+      <h2 class="mb-4">Подбор маршрута</h2>
+      <form class="mw-50" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form layout="horizontal" %}
+        {% bootstrap_button button_type="submit" button_class="btn-success" content="Подобрать маршрут" %}
+      </form>
+    {% endif %}
+  </div>
 {% endblock content %}
