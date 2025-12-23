@@ -74,15 +74,21 @@
     </div>
   </div>
   <h2>Фотографии</h2>
-  <ul>
-    {% for ph in photos %}
-    <li>
-      <a href="{{ ph.image_url }}" target="_blank">{{ ph.caption|default:"Фото" }}</a>
-    </li>
-    {% empty %}
-    <li>Фото пока нет.</li>
+  <div>
+    <div class="row">
+      {% for ph in photos %}
+      <div class="col-lg-4 mb-4">
+        <figure class="figure">
+          <img class="figure-img img-thumbnail rounded" src="{{ ph.image_url }}"
+            alt="{{ ph.caption|default:"Фото" }}" />
+          <figcaption class="figure-caption text-center">{{ ph.caption|default:"Фото" }}</figcaption>
+        </figure>
+      </div>
+      {% empty %}
+      <p class="text-muted text-start">Фото пока нет.</p>
+    </div>
     {% endfor %}
-  </ul>
+  </div>
   <h2>
     {% if user_review %}
     Редактировать отзыв
